@@ -1,0 +1,2 @@
+[rpi]
+192.168.178.29 ansible_port=2222 ansible_user=pi

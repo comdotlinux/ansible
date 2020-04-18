@@ -1,0 +1,248 @@
+- name: "Ansible playbook example"
+  hosts: 127.0.0.1
+  connection: local
+  vars:
+    - ubuntu_release_name: bionic
+    - hub_release_url: "https://github.com/github/hub/releases/latest"
+    - hub_strip_url: "https://github.com/github/hub/releases/tag/v"
+    - google_chrome_list_file: google-chrome.list
+    - chrome_apt_file: "/etc/apt/sources.list.d/{{ google_chrome_list_file }}"
+    - vault_download: https://releases.hashicorp.com/vault/1.2.3/vault_1.2.3_linux_amd64.zip
+    - vault_file: "{{ vault_download | basename }}"
+
+
+  tasks:
+    - name: Run "apt-get update"
+      become: yes
+      apt:
+        update_cache: yes
+        cache_valid_time: 3600
+      ignore_errors: True
+
+    - name: Install packages
+      become: yes
+      apt:
+        state: latest
+        pkg:
+          - stow
+          - vim
+          - htop
+          - shutter
+          - conky-all
+          - git
+          - byobu
+          - evolution-ews
+          - guake
+          - autokey-gtk
+          - slack-desktop
+          - ike-qtgui
+          - fastboot
+          - powerline
+          - curl
+          - unzip
+
+    - name: Install Git related packages
+      become: yes
+      apt:
+        state: latest
+        pkg:
+          - git
+          - git-flow
+          - git-hub
+          - git-lfs
+
+    - name: "Check if docker is already installed?"
+      stat:
+        path: /usr/bin/docker
+      register: docker
+
+    - name: Install apt-transport-https
+      become: yes
+      apt: name=apt-transport-https state=present
+      when: not docker.stat.exists
+
+    - name: Add Docker repository key
+      become: yes
+      apt_key:
+        url: https://download.docker.com/linux/ubuntu/gpg
+        state: present
+      when: not docker.stat.exists
+
+    - name: Add Docker repository source
+      become: yes
+      apt_repository:
+        repo: "deb [arch=amd64] https://download.docker.com/linux/ubuntu {{ ubuntu_release_name }} stable"
+        state: present
+        update_cache: yes
+        filename: docker
+      when: not docker.stat.exists
+
+    - name: Reload Docker configuration
+      become: yes
+      service: name=docker state=started
+
+    - name: Check hub.github.com for new version
+      uri:
+        url: "{{ hub_release_url }}"
+        method: HEAD
+      register: hub_release_resp
+
+    - name: Hub release url
+      debug: msg="{{ hub_release_resp.url }}"
+      changed_when: No
+
+    - name: "Check Local Hub is already installed?"
+      stat:
+        path: /usr/local/bin/hub
+      register: hub
+      changed_when: No
+
+    - name: Show hub binary stat
+      debug: msg="{{ hub.stat }}"
+      changed_when: No
+
+    - name: Extract release version
+      shell: "echo {{ hub_release_resp.url }} | sed 's_{{ hub_strip_url }}__'"
+      register: hub_version
+      ignore_errors: No
+      changed_when: No
+
+    - name: Check current installed hub version
+      shell: "/usr/local/bin/hub --version | sed -n '/hub version/s_hub version __p'"
+      register: hub_installed_version
+      ignore_errors: Yes
+      changed_when: No
+
+    - name: Show hub version variable
+      debug: msg="{{ hub_version }}"
+
+    - name: Show hub installed version
+      debug: msg="{{ hub_installed_version }}"
+      changed_when: No
+
+    - name: Download Hub
+      get_url:
+        url: "https://github.com/github/hub/releases/download/v{{ hub_version.stdout }}/hub-linux-amd64-{{ hub_version.stdout }}.tgz"
+        dest: "/tmp/{{ hub_version.stdout }}.tgz"
+      ignore_errors: False
+      when: not hub.stat.exists or hub_installed_version.stdout != hub_version.stdout
+
+    - name: "Unarchive source {{ hub_version.stdout }}"
+      unarchive:
+        src: "/tmp/{{ hub_version.stdout }}.tgz"
+        dest: "/tmp/"
+        copy: No
+      when: not hub.stat.exists or hub_installed_version.stdout != hub_version.stdout
+
+    - name: Install Hub
+      become: Yes
+      shell: "cd /tmp/hub-linux-amd64-{{ hub_version.stdout }} && ./install"
+      ignore_errors: No
+      when: not hub.stat.exists or hub_installed_version.stdout != hub_version.stdout
+
+    - name: "Remove file /tmp/{{ hub_version.stdout }}.tgz"
+      file:
+        path: "/tmp/{{ hub_version.stdout }}.tgz"
+        state: absent
+      ignore_errors: Yes
+
+    - name: "Recursively remove directory /tmp/hub-linux-amd64-{{ hub_version.stdout }}"
+      file:
+        path: "/tmp/hub-linux-amd64-{{ hub_version.stdout }}"
+        state: absent
+      ignore_errors: True
+
+    - name: Does the Google apt file exist?
+      stat:
+        path: "{{chrome_apt_file}}"
+      register: google_apt_file
+      ignore_errors: True
+      changed_when: false
+
+    - name: Add Google Chrome key
+      become: yes
+      apt_key:
+        url: https://dl-ssl.google.com/linux/linux_signing_key.pub
+        state: present
+      # shell: wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add -
+      when: not google_apt_file.stat.exists
+
+    - name: Add Google Chrome repo
+      become: yes
+      apt_repository:
+        repo: "deb http://dl.google.com/linux/chrome/deb/ stable main"
+        state: present
+        update_cache: yes
+        filename: "{{ google_chrome_list_file }}"
+      # copy: content="deb http://dl.google.com/linux/chrome/deb/ stable main" dest={{chrome_apt_file}} owner=root group=root mode=0644
+      when: not google_apt_file.stat.exists
+
+    - name: Update apt cache
+      become: yes
+      apt: update_cache=yes
+      when: not google_apt_file.stat.exists
+
+    - name: Install Google Chrome
+      become: yes
+      apt: pkg=google-chrome-stable state=present
+
+    # - name: Install ngroak
+      # become: yes
+    # - name: download vault
+    #   get_url:
+    #     url: "{{ vault_download }}"
+    #     dest: /tmp
+    # - name: unzip vault download
+    #   become: yes
+    #   unarchive:
+    #     src: /tmp/{{ vault_file }}
+    #     dest: /usr/local/bin
+    #     remote_src: yes
+    # - name: set permissions and ownersip correct for vault executable
+    #   become: yes
+    #   file:
+    #     path: /usr/local/bin/vault
+    #     owner: vault
+    #     group: vault
+    #     mode: 0755
+    # - name: set memlock capability on vault executable for security
+    #   become: yes
+    #   shell: >
+    #     setcap cap_ipc_lock=+ep /usr/local/bin/vault
+    # - name: create vault systemd service to run vault as system daemon
+    #     become: true
+    #     shell: |
+    #       echo "[Unit]
+    #       Description="a tool for managing secrets"
+    #       Documentation=https://www.vaultproject.io/docs/
+    #       Requires=network-online.target
+    #       After=network-online.target
+    #       ConditionFileNotEmpty=/etc/vault.d/vault.hcl
+
+    #       [Service]
+    #       User=vault
+    #       Group=vault
+    #       ProtectSystem=full
+    #       ProtectHome=read-only
+    #       PrivateTmp=yes
+    #       PrivateDevices=yes
+    #       SecureBits=keep-caps
+    #       AmbientCapabilities=CAP_IPC_LOCK
+    #       Capabilities=CAP_IPC_LOCK+ep
+    #       CapabilityBoundingSet=CAP_SYSLOG CAP_IPC_LOCK
+    #       NoNewPrivileges=yes
+    #       ExecStart=/usr/local/bin/vault server -config=/etc/vault.d/vault.hcl
+    #       ExecReload=/bin/kill --signal HUP $MAINPID
+    #       KillMode=process
+    #       KillSignal=SIGINT
+    #       Restart=on-failure
+    #       RestartSec=5
+    #       TimeoutStopSec=30
+    #       StartLimitIntervalSec=60
+    #       StartLimitBurst=3
+    #       LimitNOFILE=65536
+
+    #       [Install]
+    #       WantedBy=multi-user.target" > /etc/systemd/system/vault.service
+    #     args:
+    #       creates: /etc/systemd/system/vault.service
