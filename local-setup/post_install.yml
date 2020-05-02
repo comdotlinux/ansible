@@ -3,10 +3,6 @@
   connection: local
   vars:
     - ubuntu_release_name: bionic
-    - hub_release_url: "https://github.com/github/hub/releases/latest"
-    - hub_strip_url: "https://github.com/github/hub/releases/tag/v"
-    - google_chrome_list_file: google-chrome.list
-    - chrome_apt_file: "/etc/apt/sources.list.d/{{ google_chrome_list_file }}"
     - vault_download: https://releases.hashicorp.com/vault/1.2.3/vault_1.2.3_linux_amd64.zip
     - vault_file: "{{ vault_download | basename }}"
 
@@ -51,140 +47,22 @@
           - git-hub
           - git-lfs
 
-    - name: "Check if docker is already installed?"
-      stat:
-        path: /usr/bin/docker
-      register: docker
-
-    - name: Install apt-transport-https
-      become: yes
-      apt: name=apt-transport-https state=present
-      when: not docker.stat.exists
-
-    - name: Add Docker repository key
-      become: yes
-      apt_key:
-        url: https://download.docker.com/linux/ubuntu/gpg
-        state: present
-      when: not docker.stat.exists
-
-    - name: Add Docker repository source
-      become: yes
-      apt_repository:
-        repo: "deb [arch=amd64] https://download.docker.com/linux/ubuntu {{ ubuntu_release_name }} stable"
-        state: present
-        update_cache: yes
-        filename: docker
-      when: not docker.stat.exists
-
-    - name: Reload Docker configuration
-      become: yes
-      service: name=docker state=started
-
-    - name: Check hub.github.com for new version
-      uri:
-        url: "{{ hub_release_url }}"
-        method: HEAD
-      register: hub_release_resp
-
-    - name: Hub release url
-      debug: msg="{{ hub_release_resp.url }}"
-      changed_when: No
-
-    - name: "Check Local Hub is already installed?"
-      stat:
-        path: /usr/local/bin/hub
-      register: hub
-      changed_when: No
-
-    - name: Show hub binary stat
-      debug: msg="{{ hub.stat }}"
-      changed_when: No
-
-    - name: Extract release version
-      shell: "echo {{ hub_release_resp.url }} | sed 's_{{ hub_strip_url }}__'"
-      register: hub_version
-      ignore_errors: No
-      changed_when: No
-
-    - name: Check current installed hub version
-      shell: "/usr/local/bin/hub --version | sed -n '/hub version/s_hub version __p'"
-      register: hub_installed_version
-      ignore_errors: Yes
-      changed_when: No
-
-    - name: Show hub version variable
-      debug: msg="{{ hub_version }}"
-
-    - name: Show hub installed version
-      debug: msg="{{ hub_installed_version }}"
-      changed_when: No
-
-    - name: Download Hub
-      get_url:
-        url: "https://github.com/github/hub/releases/download/v{{ hub_version.stdout }}/hub-linux-amd64-{{ hub_version.stdout }}.tgz"
-        dest: "/tmp/{{ hub_version.stdout }}.tgz"
-      ignore_errors: False
-      when: not hub.stat.exists or hub_installed_version.stdout != hub_version.stdout
-
-    - name: "Unarchive source {{ hub_version.stdout }}"
-      unarchive:
-        src: "/tmp/{{ hub_version.stdout }}.tgz"
-        dest: "/tmp/"
-        copy: No
-      when: not hub.stat.exists or hub_installed_version.stdout != hub_version.stdout
-
-    - name: Install Hub
-      become: Yes
-      shell: "cd /tmp/hub-linux-amd64-{{ hub_version.stdout }} && ./install"
-      ignore_errors: No
-      when: not hub.stat.exists or hub_installed_version.stdout != hub_version.stdout
-
-    - name: "Remove file /tmp/{{ hub_version.stdout }}.tgz"
-      file:
-        path: "/tmp/{{ hub_version.stdout }}.tgz"
-        state: absent
-      ignore_errors: Yes
-
-    - name: "Recursively remove directory /tmp/hub-linux-amd64-{{ hub_version.stdout }}"
-      file:
-        path: "/tmp/hub-linux-amd64-{{ hub_version.stdout }}"
-        state: absent
-      ignore_errors: True
-
-    - name: Does the Google apt file exist?
-      stat:
-        path: "{{chrome_apt_file}}"
-      register: google_apt_file
-      ignore_errors: True
-      changed_when: false
-
-    - name: Add Google Chrome key
-      become: yes
-      apt_key:
-        url: https://dl-ssl.google.com/linux/linux_signing_key.pub
-        state: present
-      # shell: wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add -
-      when: not google_apt_file.stat.exists
-
-    - name: Add Google Chrome repo
-      become: yes
-      apt_repository:
-        repo: "deb http://dl.google.com/linux/chrome/deb/ stable main"
-        state: present
-        update_cache: yes
-        filename: "{{ google_chrome_list_file }}"
-      # copy: content="deb http://dl.google.com/linux/chrome/deb/ stable main" dest={{chrome_apt_file}} owner=root group=root mode=0644
-      when: not google_apt_file.stat.exists
-
-    - name: Update apt cache
-      become: yes
-      apt: update_cache=yes
-      when: not google_apt_file.stat.exists
-
-    - name: Install Google Chrome
-      become: yes
-      apt: pkg=google-chrome-stable state=present
+    - import_tasks: docker.yml
+    - import_tasks: vs-code.yml
+      vars:
+        - vscode_gpg_location: /etc/apt/trusted.gpg.d
+        - code_dir_tmp: /tmp/code
+        - asc_file_tmp: microsoft.asc
+        - vscdoe_gpg_filename: microsoft.gpg
+        - vscode_list_file: /etc/apt/sources.list.d/vscode.list
+    - import_tasks: hub.yml
+      vars:
+        - hub_release_url: "https://github.com/github/hub/releases/latest"
+        - hub_strip_url: "https://github.com/github/hub/releases/tag/v"
+    - import_tasks: google-chrome.yml
+      vars:
+        - google_chrome_list_file: google-chrome.list
+        - chrome_apt_file: "/etc/apt/sources.list.d/{{ google_chrome_list_file }}"
 
     # - name: Install ngroak
       # become: yes

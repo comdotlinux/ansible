@@ -1,0 +1,64 @@
+---
+- name: Get the repository key location info
+  stat:
+    path: "{{ vscode_gpg_location }}/{{ vscdoe_gpg_filename }}"
+  register: vscode_gpg_location_info
+  ignore_errors: True
+  changed_when: False
+- name: Create a directory if it does not exist
+  file:
+    path: "{{ code_dir_tmp }}"
+    state: directory
+    mode: '0755'
+  when: not vscode_gpg_location_info.stat.exists
+- name: Download microsoft apt repository key
+  get_url:
+    url: https://packages.microsoft.com/keys/microsoft.asc
+    dest: "{{ code_dir_tmp }}/{{ asc_file_tmp }}"
+  when: not vscode_gpg_location_info.stat.exists
+- name: Convert The Key using gpg --armor
+  shell: "cat {{ code_dir_tmp }}/{{ asc_file_tmp }} | gpg --dearmor > {{ code_dir_tmp }}/{{ vscdoe_gpg_filename }}"
+  when: not vscode_gpg_location_info.stat.exists
+- name: Copy file with owner and permissions
+  become: True
+  copy:
+    src: "{{ code_dir_tmp }}/{{ vscdoe_gpg_filename }}"
+    dest: "{{ vscode_gpg_location }}/{{ vscdoe_gpg_filename }}"
+    owner: root
+    group: root
+    mode: '0644'
+  when: not vscode_gpg_location_info.stat.exists
+- name: Remove the directory and files in it created before
+  file:
+    path: "{{ code_dir_tmp }}"
+    state: absent
+  ignore_errors: True
+- name: Create the vscode.list file
+  become: True
+  file:
+    path: "{{ vscode_list_file }}"
+    state: touch
+  ignore_errors: True
+  changed_when: False
+- name: Add the repository
+  become: True
+  lineinfile:
+    path: "{{ vscode_list_file }}"
+    line: "deb [arch=amd64 signed-by={{ vscode_gpg_location }}/{{ vscdoe_gpg_filename }}] https://packages.microsoft.com/repos/vscode stable main"
+    state: present
+    regexp: '^deb.*main$'
+- name: Install apt transport https
+  become: True
+  apt:
+    state: latest
+    pkg: apt-transport-https
+- name: Run "apt-get update"
+  become: True
+  ignore_errors: True
+  apt:
+    update_cache: True
+- name: Install VS Code
+  become: True
+  apt:
+    state: latest
+    pkg: code
