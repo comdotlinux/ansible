@@ -63,6 +63,7 @@
       vars:
         - google_chrome_list_file: google-chrome.list
         - chrome_apt_file: "/etc/apt/sources.list.d/{{ google_chrome_list_file }}"
+    - import_tasks: ngrok.yml
 
     # - name: Install ngroak
       # become: yes
