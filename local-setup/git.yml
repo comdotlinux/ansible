@@ -1,0 +1,28 @@
+---
+#- name: "Check if git is already installed?"
+#  stat:
+#    path: /usr/bin/git
+#  register: git_status
+
+- name: Install apt-transport-https
+  become: yes
+  apt: name=apt-transport-https state=present
+  #when: not git_status.stat.exists
+
+- name: Add Git repository source
+  become: yes
+  apt_repository:
+    repo: 'ppa:git-core/ppa'
+    state: present
+    update_cache: yes
+    #  when: not git_status.stat.exists
+
+- name: Install Git and related packages
+  become: yes
+  apt:
+    state: latest
+    pkg:
+      - git
+      - git-flow
+      - hub
+      - git-lfs

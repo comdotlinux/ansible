@@ -1,0 +1,70 @@
+- name: Check github.com/cli for new version
+  uri:
+    url: "{{ gh_release_url }}"
+    method: HEAD
+  register: gh_release_resp
+
+- name: Github Cli release url
+  debug: msg="{{ gh_release_resp.url }}"
+  changed_when: No
+
+- name: Check if gh is installed
+  command: dpkg-query -W gh
+  register: gh_check_deb
+  changed_when: gh_check_deb.rc == 1
+
+- name: Show gh binary stat
+  debug: msg="{{ gh_installed_version.stat }}"
+  changed_when: No
+
+- name: Extract release version
+  shell: "echo {{ gh_release_resp.url }} | sed 's_{{ gh_strip_url }}__'"
+  register: gh_version
+  ignore_errors: No
+  changed_when: No
+
+- name: Check current installed gh version
+  shell: "/usr/local/bin/gh --version | awk '{print $2}'"
+  register: gh_installed_version
+  ignore_errors: Yes
+  changed_when: No
+  when: gh_check_deb.rc == 1
+
+- name: Show hub version variable
+  debug: msg="{{ hub_version }}"
+
+- name: Show hub installed version
+  debug: msg="{{ gh_installed_version }}"
+  changed_when: No
+
+- name: Download Hub
+  get_url:
+    url: "https://github.com/github/hub/releases/download/v{{ hub_version.stdout }}/hub-linux-amd64-{{ hub_version.stdout }}.tgz"
+    dest: "/tmp/{{ hub_version.stdout }}.tgz"
+  ignore_errors: False
+  when: not hub.stat.exists or gh_installed_version.stdout != hub_version.stdout
+
+- name: "Unarchive source {{ hub_version.stdout }}"
+  unarchive:
+    src: "/tmp/{{ hub_version.stdout }}.tgz"
+    dest: "/tmp/"
+    copy: No
+  when: not hub.stat.exists or gh_installed_version.stdout != hub_version.stdout
+
+- name: Install Hub
+  become: Yes
+  shell: "cd /tmp/hub-linux-amd64-{{ hub_version.stdout }} && ./install"
+  ignore_errors: No
+  when: not hub.stat.exists or gh_installed_version.stdout != hub_version.stdout
+
+- name: "Remove file /tmp/{{ hub_version.stdout }}.tgz"
+  file:
+    path: "/tmp/{{ hub_version.stdout }}.tgz"
+    state: absent
+  ignore_errors: Yes
+
+- name: "Recursively remove directory /tmp/hub-linux-amd64-{{ hub_version.stdout }}"
+  file:
+    path: "/tmp/hub-linux-amd64-{{ hub_version.stdout }}"
+    state: absent
+  ignore_errors: True

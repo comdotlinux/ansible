@@ -25,6 +25,21 @@
     filename: docker
   when: not docker.stat.exists
 
+- name: Run "apt-get update"
+  become: yes
+  apt:
+    update_cache: yes
+    cache_valid_time: 3600
+  ignore_errors: True
+
+
+- name: Install Docker
+  become: yes
+  apt: 
+    state: present
+    pkg:
+      - docker-ce
+
 - name: Reload Docker configuration
   become: yes
   service: name=docker state=started

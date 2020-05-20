@@ -8,6 +8,11 @@
 
 
   tasks:
+    # - import_tasks: github-cli.yml
+    #   vars:
+    #     - gh_release_url: "https://github.com/cli/cli/releases/latest"
+    #     - gh_strip_url: "https://github.com/cli/cli/releases/tag/v"
+
     - name: Run "apt-get update"
       become: yes
       apt:
@@ -21,32 +26,19 @@
         state: latest
         pkg:
           - stow
-          - vim
+          - neovim
           - htop
-          - shutter
           - conky-all
-          - git
           - byobu
           - evolution-ews
           - guake
           - autokey-gtk
           - slack-desktop
-          - ike-qtgui
-          - fastboot
           - powerline
           - curl
           - unzip
 
-    - name: Install Git related packages
-      become: yes
-      apt:
-        state: latest
-        pkg:
-          - git
-          - git-flow
-          - git-hub
-          - git-lfs
-
+    - import_tasks: git.yml
     - import_tasks: docker.yml
     - import_tasks: vs-code.yml
       vars:
