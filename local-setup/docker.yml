@@ -5,41 +5,41 @@
   register: docker
 
 - name: Install apt-transport-https
-  become: yes
+  become: True
   apt: name=apt-transport-https state=present
   when: not docker.stat.exists
 
 - name: Add Docker repository key
-  become: yes
+  become: True
   apt_key:
     url: https://download.docker.com/linux/ubuntu/gpg
     state: present
   when: not docker.stat.exists
 
 - name: Add Docker repository source
-  become: yes
+  become: True
   apt_repository:
     repo: "deb [arch=amd64] https://download.docker.com/linux/ubuntu {{ ubuntu_release_name }} stable"
     state: present
-    update_cache: yes
+    update_cache: True
     filename: docker
   when: not docker.stat.exists
 
 - name: Run "apt-get update"
-  become: yes
+  become: True
   apt:
-    update_cache: yes
+    update_cache: True
     cache_valid_time: 3600
   ignore_errors: True
 
 
 - name: Install Docker
-  become: yes
+  become: True
   apt: 
     state: present
     pkg:
       - docker-ce
 
 - name: Reload Docker configuration
-  become: yes
+  become: True
   service: name=docker state=started

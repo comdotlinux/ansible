@@ -1,0 +1,10 @@
+---
+- name: Add KeepassXC ppa
+  become: yes
+  apt_repository:
+    repo: 'ppa:phoerious/keepassxc'
+    state: present
+    update_cache: yes
+- name: Install Git and related packages
+  become: yes
+  apt: state=latest pkg=keepassxc

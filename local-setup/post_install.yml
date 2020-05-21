@@ -14,14 +14,14 @@
     #     - gh_strip_url: "https://github.com/cli/cli/releases/tag/v"
 
     - name: Run "apt-get update"
-      become: yes
+      become: True
       apt:
-        update_cache: yes
+        update_cache: True
         cache_valid_time: 3600
       ignore_errors: True
 
     - name: Install packages
-      become: yes
+      become: True
       apt:
         state: latest
         pkg:
@@ -58,26 +58,26 @@
     - import_tasks: ngrok.yml
 
     # - name: Install ngroak
-      # become: yes
+      # become: True
     # - name: download vault
     #   get_url:
     #     url: "{{ vault_download }}"
     #     dest: /tmp
     # - name: unzip vault download
-    #   become: yes
+    #   become: True
     #   unarchive:
     #     src: /tmp/{{ vault_file }}
     #     dest: /usr/local/bin
-    #     remote_src: yes
+    #     remote_src: True
     # - name: set permissions and ownersip correct for vault executable
-    #   become: yes
+    #   become: True
     #   file:
     #     path: /usr/local/bin/vault
     #     owner: vault
     #     group: vault
     #     mode: 0755
     # - name: set memlock capability on vault executable for security
-    #   become: yes
+    #   become: True
     #   shell: >
     #     setcap cap_ipc_lock=+ep /usr/local/bin/vault
     # - name: create vault systemd service to run vault as system daemon

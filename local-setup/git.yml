@@ -5,20 +5,20 @@
 #  register: git_status
 
 - name: Install apt-transport-https
-  become: yes
+  become: True
   apt: name=apt-transport-https state=present
   #when: not git_status.stat.exists
 
 - name: Add Git repository source
-  become: yes
+  become: True
   apt_repository:
     repo: 'ppa:git-core/ppa'
     state: present
-    update_cache: yes
+    update_cache: True
     #  when: not git_status.stat.exists
 
 - name: Install Git and related packages
-  become: yes
+  become: True
   apt:
     state: latest
     pkg:

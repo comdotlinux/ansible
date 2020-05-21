@@ -2,34 +2,34 @@
 - name: Get the Ngroak URL
   shell: curl -s https://ngrok.com/download | grep 'id="dl-linux-amd64"' | grep -o "href=\".*.zip" | cut -d\" -f 2
   register: ngrokUrl
-  ignore_errors: Yes
-  changed_when: No
+  ignore_errors: True
+  changed_when: False
 
 - name: Download the ZIP
   get_url:
     url: "{{ ngrokUrl.stdout }}"
     dest: "/tmp/ngrok.zip"
-  ignore_errors: Yes
-  changed_when: No
+  ignore_errors: True
+  changed_when: False
 
 - name: "Unarchive zip"
   unarchive:
     src: "/tmp/ngrok.zip"
     dest: "/tmp/"
-    copy: No
-  changed_when: No
+    copy: False
+  changed_when: False
 
 - name: Get The Ngroak version from zip
   shell: /tmp/ngrok --version 2> /dev/null | awk '{print $3}'
   register: ngrokNewVersion
-  ignore_errors: Yes
-  changed_when: No
+  ignore_errors: True
+  changed_when: False
 
 - name: Get The Ngroak installed version
   shell: ngrok --version 2> /dev/null | awk '{print $3}'
   register: ngrokVersion
-  ignore_errors: Yes
-  changed_when: No
+  ignore_errors: True
+  changed_when: False
 
 
 

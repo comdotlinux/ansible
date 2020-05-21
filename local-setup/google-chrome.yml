@@ -3,10 +3,10 @@
     path: "{{chrome_apt_file}}"
   register: google_apt_file
   ignore_errors: True
-  changed_when: false
+  changed_when: False
 
 - name: Add Google Chrome key
-  become: yes
+  become: True
   apt_key:
     url: https://dl-ssl.google.com/linux/linux_signing_key.pub
     state: present
@@ -14,20 +14,20 @@
   when: not google_apt_file.stat.exists
 
 - name: Add Google Chrome repo
-  become: yes
+  become: True
   apt_repository:
     repo: "deb http://dl.google.com/linux/chrome/deb/ stable main"
     state: present
-    update_cache: yes
+    update_cache: True
     filename: "{{ google_chrome_list_file }}"
   # copy: content="deb http://dl.google.com/linux/chrome/deb/ stable main" dest={{chrome_apt_file}} owner=root group=root mode=0644
   when: not google_apt_file.stat.exists
 
 - name: Update apt cache
-  become: yes
+  become: True
   apt: update_cache=yes
   when: not google_apt_file.stat.exists
 
 - name: Install Google Chrome
-  become: yes
+  become: True
   apt: pkg=google-chrome-stable state=present
