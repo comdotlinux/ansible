@@ -1,4 +1,10 @@
 ---
+- name: Check if docker is installed
+  command: dpkg-query -W docker-ce
+  register: docker_check_deb
+  failed_when: docker_check_deb.rc > 1
+  changed_when: docker_check_deb.rc == 1
+
 - name: "Check if docker is already installed?"
   stat:
     path: /usr/bin/docker
@@ -9,14 +15,14 @@
   apt:
     name: apt-transport-https
     state: present
-  when: not docker.stat.exists
+  when: docker_check_deb.rc == 1 and not docker.stat.exists
 
 - name: Add Docker repository key
   become: True
   apt_key:
     url: https://download.docker.com/linux/ubuntu/gpg
     state: present
-  when: not docker.stat.exists
+  when: docker_check_deb.rc == 1 and not docker.stat.exists
 
 - name: Add Docker repository source
   become: True
@@ -25,7 +31,7 @@
     state: present
     update_cache: True
     filename: docker
-  when: not docker.stat.exists
+  when: docker_check_deb.rc == 1 and not docker.stat.exists
 
 - name: Run "apt-get update"
   become: True
@@ -33,6 +39,7 @@
     update_cache: True
     cache_valid_time: "3600"
   ignore_errors: True
+  when: docker_check_deb.rc == 1
 
 
 - name: Install Docker
@@ -40,9 +47,11 @@
   apt:
     pkg: docker-ce
     state: present
+  when: docker_check_deb.rc == 1
 
 - name: Reload Docker configuration
   become: True
   service:
     name: docker
     state: started
+  changed_when: docker_check_deb.rc == 1

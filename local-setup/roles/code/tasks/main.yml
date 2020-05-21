@@ -1,26 +1,34 @@
 ---
-- name: Include OS-specific variables.
-  include_vars: "vars.yml"
+- name: Check if code is installed
+  command: dpkg-query -W code
+  register: code_check_deb
+  failed_when: code_check_deb.rc > 1
+  changed_when: code_check_deb.rc == 1
+
 - name: Get the repository key location info
   stat:
     path: "{{ vscode_gpg_location }}/{{ vscdoe_gpg_filename }}"
   register: vscode_gpg_location_info
   ignore_errors: True
-  changed_when: False
+  when: code_check_deb.rc == 1
+
 - name: Create a directory if it does not exist
   file:
     path: "{{ code_dir_tmp }}"
     state: directory
     mode: '0755'
-  when: not vscode_gpg_location_info.stat.exists
+  when: code_check_deb.rc == 1 and not vscode_gpg_location_info.stat.exists
+
 - name: Download microsoft apt repository key
   get_url:
     url: https://packages.microsoft.com/keys/microsoft.asc
     dest: "{{ code_dir_tmp }}/{{ asc_file_tmp }}"
-  when: not vscode_gpg_location_info.stat.exists
+  when: code_check_deb.rc == 1 and not vscode_gpg_location_info.stat.exists
+
 - name: Convert The Key using gpg --armor
   shell: "cat {{ code_dir_tmp }}/{{ asc_file_tmp }} | gpg --dearmor > {{ code_dir_tmp }}/{{ vscdoe_gpg_filename }}"
-  when: not vscode_gpg_location_info.stat.exists
+  when: code_check_deb.rc == 1 and not vscode_gpg_location_info.stat.exists
+
 - name: Copy file with owner and permissions
   become: True
   copy:
@@ -29,12 +37,15 @@
     owner: root
     group: root
     mode: '0644'
-  when: not vscode_gpg_location_info.stat.exists
+  when: code_check_deb.rc == 1 and not vscode_gpg_location_info.stat.exists
+
 - name: Remove the directory and files in it created before
   file:
     path: "{{ code_dir_tmp }}"
     state: absent
   ignore_errors: True
+  when: code_check_deb.rc == 1
+
 - name: Create the vscode.list file
   become: True
   file:
@@ -42,6 +53,8 @@
     state: touch
   ignore_errors: True
   changed_when: False
+  when: code_check_deb.rc == 1
+
 - name: Add the repository
   become: True
   lineinfile:
@@ -49,18 +62,25 @@
     line: "deb [arch=amd64 signed-by={{ vscode_gpg_location }}/{{ vscdoe_gpg_filename }}] https://packages.microsoft.com/repos/vscode stable main"
     state: present
     regexp: '^deb.*main$'
+  when: code_check_deb.rc == 1
+
 - name: Install apt transport https
   become: True
   apt:
     state: latest
     pkg: apt-transport-https
+  when: code_check_deb.rc == 1
+
 - name: Run "apt-get update"
   become: True
   ignore_errors: True
   apt:
     update_cache: True
+  when: code_check_deb.rc == 1
+
 - name: Install VS Code
   become: True
   apt:
     state: latest
     pkg: code
+  when: code_check_deb.rc == 1

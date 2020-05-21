@@ -8,6 +8,8 @@
 
   roles:
     - fonts
+    - code
+    - docker
 
   tasks:
     # - import_tasks: github-cli.yml
