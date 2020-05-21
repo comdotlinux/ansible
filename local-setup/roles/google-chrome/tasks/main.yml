@@ -10,7 +10,6 @@
   apt_key:
     url: https://dl-ssl.google.com/linux/linux_signing_key.pub
     state: present
-  # shell: wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add -
   when: not google_apt_file.stat.exists
 
 - name: Add Google Chrome repo
@@ -25,9 +24,12 @@
 
 - name: Update apt cache
   become: True
-  apt: update_cache=yes
+  apt:
+    update_cache: yes
   when: not google_apt_file.stat.exists
 
 - name: Install Google Chrome
   become: True
-  apt: pkg=google-chrome-stable state=present
+  apt:
+    pkg: google-chrome-stable
+    state: present

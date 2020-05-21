@@ -6,7 +6,9 @@
 
 - name: Install apt-transport-https
   become: True
-  apt: name=apt-transport-https state=present
+  apt:
+    name: apt-transport-https
+    state: present
   #when: not git_status.stat.exists
 
 - name: Add Git repository source

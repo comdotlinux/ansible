@@ -6,7 +6,9 @@
 
 - name: Install apt-transport-https
   become: True
-  apt: name=apt-transport-https state=present
+  apt:
+    name: apt-transport-https
+    state: present
   when: not docker.stat.exists
 
 - name: Add Docker repository key
@@ -29,17 +31,18 @@
   become: True
   apt:
     update_cache: True
-    cache_valid_time: 3600
+    cache_valid_time: "3600"
   ignore_errors: True
 
 
 - name: Install Docker
   become: True
-  apt: 
+  apt:
+    pkg: docker-ce
     state: present
-    pkg:
-      - docker-ce
 
 - name: Reload Docker configuration
   become: True
-  service: name=docker state=started
+  service:
+    name: docker
+    state: started
