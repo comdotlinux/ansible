@@ -1,6 +1,6 @@
 ---
 - name: Include OS-specific variables.
-  include_vars: "{{ ansible_os_family }}.yml"
+  include_vars: "vars.yml"
 - name: Get the repository key location info
   stat:
     path: "{{ vscode_gpg_location }}/{{ vscdoe_gpg_filename }}"

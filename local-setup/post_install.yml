@@ -2,10 +2,12 @@
   hosts: 127.0.0.1
   connection: local
   vars:
-    - ubuntu_release_name: bionic
+    - ubuntu_release_name: focal
     - vault_download: https://releases.hashicorp.com/vault/1.2.3/vault_1.2.3_linux_amd64.zip
     - vault_file: "{{ vault_download | basename }}"
 
+  roles:
+    - fonts
 
   tasks:
     # - import_tasks: github-cli.yml
@@ -13,49 +15,43 @@
     #     - gh_release_url: "https://github.com/cli/cli/releases/latest"
     #     - gh_strip_url: "https://github.com/cli/cli/releases/tag/v"
 
-    - name: Run "apt-get update"
-      become: True
-      apt:
-        update_cache: True
-        cache_valid_time: 3600
-      ignore_errors: True
+    # - name: Run "apt-get update"
+    #   become: True
+    #   apt:
+    #     update_cache: True
+    #     cache_valid_time: 3600
+    #   ignore_errors: True
 
-    - name: Install packages
-      become: True
-      apt:
-        state: latest
-        pkg:
-          - stow
-          - neovim
-          - htop
-          - conky-all
-          - byobu
-          - evolution-ews
-          - guake
-          - autokey-gtk
-          - slack-desktop
-          - powerline
-          - curl
-          - unzip
+    # - name: Install packages
+    #   become: True
+    #   apt:
+    #     state: latest
+    #     pkg:
+    #       - stow
+    #       - neovim
+    #       - htop
+    #       - conky-all
+    #       - byobu
+    #       - evolution-ews
+    #       - guake
+    #       - autokey-gtk
+    #       - slack-desktop
+    #       - powerline
+    #       - curl
+    #       - unzip
 
-    - import_tasks: git.yml
-    - import_tasks: docker.yml
-    - import_tasks: vs-code.yml
-      vars:
-        - vscode_gpg_location: /etc/apt/trusted.gpg.d
-        - code_dir_tmp: /tmp/code
-        - asc_file_tmp: microsoft.asc
-        - vscdoe_gpg_filename: microsoft.gpg
-        - vscode_list_file: /etc/apt/sources.list.d/vscode.list
-    - import_tasks: hub.yml
-      vars:
-        - hub_release_url: "https://github.com/github/hub/releases/latest"
-        - hub_strip_url: "https://github.com/github/hub/releases/tag/v"
-    - import_tasks: google-chrome.yml
-      vars:
-        - google_chrome_list_file: google-chrome.list
-        - chrome_apt_file: "/etc/apt/sources.list.d/{{ google_chrome_list_file }}"
-    - import_tasks: ngrok.yml
+    # - import_tasks: git.yml
+    # - import_tasks: docker.yml
+    # - import_tasks: vs-code.yml
+    # - import_tasks: hub.yml
+    #   vars:
+    #     - hub_release_url: "https://github.com/github/hub/releases/latest"
+    #     - hub_strip_url: "https://github.com/github/hub/releases/tag/v"
+    # - import_tasks: google-chrome.yml
+    #   vars:
+    #     - google_chrome_list_file: google-chrome.list
+    #     - chrome_apt_file: "/etc/apt/sources.list.d/{{ google_chrome_list_file }}"
+    # - import_tasks: ngrok.yml
 
     # - name: Install ngroak
       # become: True

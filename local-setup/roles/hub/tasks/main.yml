@@ -5,7 +5,8 @@
   register: hub_release_resp
 
 - name: Hub release url
-  debug: msg="{{ hub_release_resp.url }}"
+  debug:
+    msg: "{{ hub_release_resp.url }}"
   changed_when: False
 
 - name: "Check Local Hub is already installed?"
@@ -15,7 +16,8 @@
   changed_when: False
 
 - name: Show hub binary stat
-  debug: msg="{{ hub.stat }}"
+  debug:
+    msg: "{{ hub.stat }}"
   changed_when: False
 
 - name: Extract release version
@@ -31,10 +33,12 @@
   changed_when: False
 
 - name: Show hub version variable
-  debug: msg="{{ hub_version }}"
+  debug:
+    msg: "{{ hub_version }}"
 
 - name: Show hub installed version
-  debug: msg="{{ hub_installed_version }}"
+  debug:
+    msg: "{{ hub_installed_version }}"
   changed_when: False
 
 - name: Download Hub
@@ -42,20 +46,20 @@
     url: "https://github.com/github/hub/releases/download/v{{ hub_version.stdout }}/hub-linux-amd64-{{ hub_version.stdout }}.tgz"
     dest: "/tmp/{{ hub_version.stdout }}.tgz"
   ignore_errors: False
-  when: Falset hub.stat.exists or hub_installed_version.stdout != hub_version.stdout
+  when: hub.stat.exists or hub_installed_version.stdout != hub_version.stdout
 
 - name: "Unarchive source {{ hub_version.stdout }}"
   unarchive:
     src: "/tmp/{{ hub_version.stdout }}.tgz"
     dest: "/tmp/"
     copy: False
-  when: Falset hub.stat.exists or hub_installed_version.stdout != hub_version.stdout
+  when: hub.stat.exists or hub_installed_version.stdout != hub_version.stdout
 
 - name: Install Hub
   become: True
   shell: "cd /tmp/hub-linux-amd64-{{ hub_version.stdout }} && ./install"
   ignore_errors: False
-  when: Falset hub.stat.exists or hub_installed_version.stdout != hub_version.stdout
+  when: hub.stat.exists or hub_installed_version.stdout != hub_version.stdout
 
 - name: "Remove file /tmp/{{ hub_version.stdout }}.tgz"
   file:

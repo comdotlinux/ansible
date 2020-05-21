@@ -1,0 +1,60 @@
+---
+- name: "Check if Font is already installed?"
+  find:
+      paths:
+        - "{{ local_font_path }}"
+      patterns:
+        - "{{ font_check_pattern }}"
+  register: font_info
+  changed_when: False
+
+- name: Show fonts found info
+  debug:
+    msg: "{{ font_info }}"
+  when: font_info.matched < 1
+
+- name: Download Font
+  get_url:
+    url: "{{ font_download_url }}"
+    dest: "/tmp/{{ font_archive_name }}"
+  ignore_errors: False
+  when: font_info.matched < 1
+
+- name: "Unarchive source {{ font_archive_name }}"
+  unarchive:
+    src: "/tmp/{{ font_archive_name }}"
+    dest: "/tmp/"
+    copy: False
+  when: font_info.matched < 1
+
+- name: Install fonts
+  copy:
+    src: "/tmp/{{ font_folder_name }}/ttf/"
+    dest: "{{ local_font_path }}"
+  ignore_errors: False
+  when: font_info.matched < 1
+
+- name: Copy rest of the files
+  copy:
+    src: "/tmp/{{ font_folder_name }}/web"
+    dest: "{{ local_font_path }}"
+  ignore_errors: False
+  when: font_info.matched < 1
+
+- name: Reload fonts cache
+  command: "fc-cache -f -v"
+  when: font_info.matched < 1
+
+- name: "Remove file /tmp/{{ font_archive_name }}"
+  file:
+    path: "/tmp/{{ font_archive_name }}"
+    state: absent
+  ignore_errors: True
+  when: font_info.matched < 1
+
+- name: "Recursively remove directory /tmp/{{ font_folder_name }}"
+  file:
+    path: "/tmp/{{ font_folder_name }}"
+    state: absent
+  ignore_errors: True
+  when: font_info.matched < 1

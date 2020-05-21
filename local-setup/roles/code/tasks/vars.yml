@@ -1,0 +1,6 @@
+---
+vscode_gpg_location: /etc/apt/trusted.gpg.d
+code_dir_tmp: /tmp/code
+asc_file_tmp: microsoft.asc
+vscdoe_gpg_filename: microsoft.gpg
+vscode_list_file: /etc/apt/sources.list.d/vscode.list

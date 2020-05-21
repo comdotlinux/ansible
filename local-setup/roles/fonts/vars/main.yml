@@ -1,0 +1,7 @@
+---
+font_version: "1.0.3"
+font_folder_name: "JetBrainsMono-{{ font_version }}"
+font_check_pattern: "JetBrainsMono-*.ttf"
+local_font_path: ~/.local/share/fonts/
+font_archive_name: "{{ font_folder_name }}.zip"
+font_download_url: "https://download.jetbrains.com/fonts/{{ font_archive_name }}"
