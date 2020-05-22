@@ -38,4 +38,4 @@ All my ansible playbooks are stored here.
 ### Things planned
 
 1. Jetbrains Toolbox
-1. a
+1. K8s / Openshift
