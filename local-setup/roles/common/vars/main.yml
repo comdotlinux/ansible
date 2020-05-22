@@ -1,0 +1,4 @@
+---
+cat_path: /usr/bin/cat
+batcat_path: /usr/bin/batcat
+oldcat_path: /usr/bin/oldcat

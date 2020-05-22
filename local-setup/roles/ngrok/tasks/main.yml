@@ -1,4 +1,10 @@
 ---
+- name: Get The Ngroak installed version
+  shell: /usr/local/bin/ngrok --version 2> /dev/null | awk '{print $3}'
+  register: ngrokVersion
+  ignore_errors: True
+  changed_when: False
+
 - name: Get the Ngroak URL
   shell: curl -s https://ngrok.com/download | grep 'id="dl-linux-amd64"' | grep -o "href=\".*.zip" | cut -d\" -f 2
   register: ngrokUrl
@@ -34,9 +40,3 @@
 - name: Show ngrok version variable
   debug:
     msg: "ngrokUrl={{ ngrokUrl.stdout }} | ngrok={{ ngrok }}"
-
-- name: Get The Ngroak installed version
-  shell: /usr/local/bin/hub --version 2> /dev/null | awk '{print $3}'
-  register: ngrokVersion
-  ignore_errors: True
-  changed_when: False

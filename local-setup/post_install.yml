@@ -7,6 +7,7 @@
     - vault_file: "{{ vault_download | basename }}"
 
   roles:
+    - common
     - fonts
     - code
     - docker
@@ -18,31 +19,6 @@
     - ngrok
 
   tasks:
-    # - name: Run "apt-get update"
-    #   become: True
-    #   apt:
-    #     update_cache: True
-    #     cache_valid_time: 3600
-    #   ignore_errors: True
-
-    # - name: Install packages
-    #   become: True
-    #   apt:
-    #     state: latest
-    #     pkg:
-    #       - stow
-    #       - neovim
-    #       - htop
-    #       - conky-all
-    #       - byobu
-    #       - evolution-ews
-    #       - guake
-    #       - autokey-gtk
-    #       - slack-desktop
-    #       - powerline
-    #       - curl
-    #       - unzip
-
     #   vars:
     # - name: Install ngroak
       # become: True

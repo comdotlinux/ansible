@@ -1,4 +1,10 @@
 ---
+- name: Remove packages conflicting with docker-ce
+  become: True
+  apt:
+    name: docker docker-engine docker.io containerd runc
+    state: absent
+
 - name: Check if docker is installed
   command: dpkg-query -W docker-ce
   register: docker_check_deb
@@ -41,13 +47,20 @@
   ignore_errors: True
   when: docker_check_deb.rc == 1
 
-
 - name: Install Docker
   become: True
   apt:
     pkg: docker-ce
     state: present
   when: docker_check_deb.rc == 1
+
+- name: "Add the user {{ user_to_add_to_docker_group }} to docker group"
+  become: True
+  user:
+    name: "{{ user_to_add_to_docker_group }}"
+    append: True
+    groups:
+      - docker
 
 - name: Reload Docker configuration
   become: True

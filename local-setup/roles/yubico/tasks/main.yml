@@ -12,4 +12,6 @@
     update_cache: yes
 - name: Install YubiCo package
   become: yes
-  apt: state=latest pkg=yubikey-personalization-gui
+  apt:
+    state: latest
+    pkg: yubikey-personalization-gui
