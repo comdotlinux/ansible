@@ -5,26 +5,28 @@
   register: peekCheck
 
 - name: Install apt-transport-https
-  become: yes
-  apt: name=apt-transport-https state=present
+  become: True
+  apt:
+    name: apt-transport-https
+    state: present
   when: not peekCheck.stat.exists
 
 - name: Add Docker repository key
-  become: yes
+  become: True
   apt_key:
     url: https://download.docker.com/linux/ubuntu/gpg
     state: present
   when: not peekCheck.stat.exists
 
 - name: Add Docker repository source
-  become: yes
+  become: True
   apt_repository:
     repo: "deb [arch=amd64] https://download.docker.com/linux/ubuntu {{ ubuntu_release_name }} stable"
     state: present
-    update_cache: yes
+    update_cache: True
     filename: docker
   when: not peekCheck.stat.exists
 
 - name: Reload Docker configuration
-  become: yes
-sudo add-apt-repository ppa:peek-developers/stable
+  become: True
+#  sudo add-apt-repository ppa:peek-developers/stable

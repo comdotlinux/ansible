@@ -1,0 +1,4 @@
+---
+gh_release_url: "https://github.com/cli/cli/releases/latest"
+gh_strip_url: "https://github.com/cli/cli/releases/tag/v"
+gh_download_url: "https://github.com/cli/cli/releases/download/v"

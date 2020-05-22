@@ -1,83 +1,56 @@
-- name: "Ansible playbook example"
+- name: "Ubuntu family local setup"
   hosts: 127.0.0.1
   connection: local
   vars:
-    - ubuntu_release_name: bionic
+    - ubuntu_release_name: focal
     - vault_download: https://releases.hashicorp.com/vault/1.2.3/vault_1.2.3_linux_amd64.zip
     - vault_file: "{{ vault_download | basename }}"
 
+  roles:
+    - common
+    - fonts
+    - code
+    - docker
+    - git
+    - github-cli
+    - google-chrome
+    - hub
+    - keepassxc
+    - ngrok
 
   tasks:
-    # - import_tasks: github-cli.yml
+  - name: Remove useless packages from the cache
+    become: True
+    apt:
+      autoclean: yes
+
+  - name: Remove dependencies that are no longer required
+    become: True
+    apt:
+      autoremove: yes
+
     #   vars:
-    #     - gh_release_url: "https://github.com/cli/cli/releases/latest"
-    #     - gh_strip_url: "https://github.com/cli/cli/releases/tag/v"
-
-    - name: Run "apt-get update"
-      become: yes
-      apt:
-        update_cache: yes
-        cache_valid_time: 3600
-      ignore_errors: True
-
-    - name: Install packages
-      become: yes
-      apt:
-        state: latest
-        pkg:
-          - stow
-          - neovim
-          - htop
-          - conky-all
-          - byobu
-          - evolution-ews
-          - guake
-          - autokey-gtk
-          - slack-desktop
-          - powerline
-          - curl
-          - unzip
-
-    - import_tasks: git.yml
-    - import_tasks: docker.yml
-    - import_tasks: vs-code.yml
-      vars:
-        - vscode_gpg_location: /etc/apt/trusted.gpg.d
-        - code_dir_tmp: /tmp/code
-        - asc_file_tmp: microsoft.asc
-        - vscdoe_gpg_filename: microsoft.gpg
-        - vscode_list_file: /etc/apt/sources.list.d/vscode.list
-    - import_tasks: hub.yml
-      vars:
-        - hub_release_url: "https://github.com/github/hub/releases/latest"
-        - hub_strip_url: "https://github.com/github/hub/releases/tag/v"
-    - import_tasks: google-chrome.yml
-      vars:
-        - google_chrome_list_file: google-chrome.list
-        - chrome_apt_file: "/etc/apt/sources.list.d/{{ google_chrome_list_file }}"
-    - import_tasks: ngrok.yml
-
     # - name: Install ngroak
-      # become: yes
+      # become: True
     # - name: download vault
     #   get_url:
     #     url: "{{ vault_download }}"
     #     dest: /tmp
     # - name: unzip vault download
-    #   become: yes
+    #   become: True
     #   unarchive:
     #     src: /tmp/{{ vault_file }}
     #     dest: /usr/local/bin
-    #     remote_src: yes
+    #     remote_src: True
     # - name: set permissions and ownersip correct for vault executable
-    #   become: yes
+    #   become: True
     #   file:
     #     path: /usr/local/bin/vault
     #     owner: vault
     #     group: vault
     #     mode: 0755
     # - name: set memlock capability on vault executable for security
-    #   become: yes
+    #   become: True
     #   shell: >
     #     setcap cap_ipc_lock=+ep /usr/local/bin/vault
     # - name: create vault systemd service to run vault as system daemon

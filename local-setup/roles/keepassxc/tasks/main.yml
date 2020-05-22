@@ -1,0 +1,21 @@
+---
+- name: Check if KeepassXC is installed
+  command: dpkg-query -W keepassxc
+  register: keepassxc_check_deb
+  failed_when: keepassxc_check_deb.rc > 1
+  changed_when: keepassxc_check_deb.rc == 1
+
+- name: Add KeepassXC ppa
+  become: yes
+  apt_repository:
+    repo: 'ppa:phoerious/keepassxc'
+    state: present
+    update_cache: yes
+  when: keepassxc_check_deb.rc == 1
+
+- name: Install Git and related packages
+  become: yes
+  apt:
+    state: latest
+    pkg: keepassxc
+  when: keepassxc_check_deb.rc == 1
