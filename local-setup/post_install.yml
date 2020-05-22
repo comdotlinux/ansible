@@ -10,6 +10,8 @@
     - fonts
     - code
     - docker
+    - git
+    - github-cli
 
   tasks:
     # - import_tasks: github-cli.yml

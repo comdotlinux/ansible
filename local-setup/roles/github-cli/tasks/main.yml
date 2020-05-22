@@ -5,16 +5,8 @@
   register: gh_release_resp
 
 - name: Github Cli release url
-  debug: msg="{{ gh_release_resp.url }}"
-  changed_when: False
-
-- name: Check if gh is installed
-  command: dpkg-query -W gh
-  register: gh_check_deb
-  changed_when: gh_check_deb.rc == 1
-
-- name: Show gh binary stat
-  debug: msg="{{ gh_installed_version.stat }}"
+  debug:
+    msg: "{{ gh_release_resp.url }}"
   changed_when: False
 
 - name: Extract release version
@@ -23,45 +15,46 @@
   ignore_errors: False
   changed_when: False
 
-- name: Check current installed gh version
-  shell: "/usr/local/bin/gh --version | awk '{print $2}'"
+- name: Check if gh is installed
+  command: dpkg-query -W gh
+  register: gh_check_deb
+  failed_when: gh_check_deb.rc > 1
+  changed_when: gh_check_deb.rc == 1
+
+- name: Extract installed gh release version
+  shell: "dpkg-query -W gh | awk '{print $2}'"
   register: gh_installed_version
-  ignore_errors: True
+  ignore_errors: False
   changed_when: False
-  when: gh_check_deb.rc == 1
+  when: gh_check_deb.rc == 0
 
-- name: Show gh installed version
-  debug: msg="{{ gh_installed_version }}"
+- name: Show gh binary stat
+  debug:
+    msg: "gh_installed_version : {{ gh_installed_version }}"
   changed_when: False
+  when: gh_check_deb.rc == 1 or gh_installed_version.stdout != gh_version.stdout
 
-- name: Download Hub
+- name: Set the filename
+  set_fact:
+    gh_deb_name: "gh_{{ gh_version.stdout }}_linux_amd64.deb"
+  when: gh_check_deb.rc == 1 or gh_installed_version.stdout != gh_version.stdout
+
+- name: Download gh
   get_url:
-    url: "https://github.com/github/hub/releases/download/v{{ hub_version.stdout }}/hub-linux-amd64-{{ hub_version.stdout }}.tgz"
-    dest: "/tmp/{{ hub_version.stdout }}.tgz"
+    url: "{{ gh_download_url }}{{ gh_version.stdout }}/{{ gh_deb_name }}"
+    dest: "/tmp/{{ gh_deb_name }}"
   ignore_errors: False
-  when: Falset hub.stat.exists or gh_installed_version.stdout != hub_version.stdout
+  when: gh_check_deb.rc == 1 or gh_installed_version.stdout != gh_version.stdout
 
-- name: "Unarchive source {{ hub_version.stdout }}"
-  unarchive:
-    src: "/tmp/{{ hub_version.stdout }}.tgz"
-    dest: "/tmp/"
-    copy: False
-  when: Falset hub.stat.exists or gh_installed_version.stdout != hub_version.stdout
-
-- name: Install Hub
+- name: Install gh
   become: True
-  shell: "cd /tmp/hub-linux-amd64-{{ hub_version.stdout }} && ./install"
-  ignore_errors: False
-  when: Falset hub.stat.exists or gh_installed_version.stdout != hub_version.stdout
+  apt:
+    deb: "/tmp/{{ gh_deb_name }}"
+  when: gh_check_deb.rc == 1 or gh_installed_version.stdout != gh_version.stdout
 
-- name: "Remove file /tmp/{{ hub_version.stdout }}.tgz"
+- name: "Remove file /tmp/{{ gh_deb_name }}"
   file:
-    path: "/tmp/{{ hub_version.stdout }}.tgz"
+    path: "/tmp/{{ gh_deb_name }}"
     state: absent
   ignore_errors: True
-
-- name: "Recursively remove directory /tmp/hub-linux-amd64-{{ hub_version.stdout }}"
-  file:
-    path: "/tmp/hub-linux-amd64-{{ hub_version.stdout }}"
-    state: absent
-  ignore_errors: True
+  when: gh_check_deb.rc == 1 or gh_installed_version.stdout != gh_version.stdout

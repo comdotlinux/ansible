@@ -1,15 +1,16 @@
 ---
-#- name: "Check if git is already installed?"
-#  stat:
-#    path: /usr/bin/git
-#  register: git_status
+- name: Check if docker is installed
+  command: dpkg-query -W git
+  register: git_check_deb
+  failed_when: git_check_deb.rc > 1
+  changed_when: git_check_deb.rc == 1
 
 - name: Install apt-transport-https
   become: True
   apt:
     name: apt-transport-https
     state: present
-  #when: not git_status.stat.exists
+  when: git_check_deb.rc == 1
 
 - name: Add Git repository source
   become: True
@@ -17,14 +18,9 @@
     repo: 'ppa:git-core/ppa'
     state: present
     update_cache: True
-    #  when: not git_status.stat.exists
 
 - name: Install Git and related packages
   become: True
   apt:
     state: latest
-    pkg:
-      - git
-      - git-flow
-      - hub
-      - git-lfs
+    pkg: "git, git-flow, hub, git-lfs"
