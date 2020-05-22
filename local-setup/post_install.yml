@@ -12,13 +12,12 @@
     - docker
     - git
     - github-cli
+    - google-chrome
+    - hub
+    - keepassxc
+    - ngrok
 
   tasks:
-    # - import_tasks: github-cli.yml
-    #   vars:
-    #     - gh_release_url: "https://github.com/cli/cli/releases/latest"
-    #     - gh_strip_url: "https://github.com/cli/cli/releases/tag/v"
-
     # - name: Run "apt-get update"
     #   become: True
     #   apt:
@@ -44,19 +43,7 @@
     #       - curl
     #       - unzip
 
-    # - import_tasks: git.yml
-    # - import_tasks: docker.yml
-    # - import_tasks: vs-code.yml
-    # - import_tasks: hub.yml
     #   vars:
-    #     - hub_release_url: "https://github.com/github/hub/releases/latest"
-    #     - hub_strip_url: "https://github.com/github/hub/releases/tag/v"
-    # - import_tasks: google-chrome.yml
-    #   vars:
-    #     - google_chrome_list_file: google-chrome.list
-    #     - chrome_apt_file: "/etc/apt/sources.list.d/{{ google_chrome_list_file }}"
-    # - import_tasks: ngrok.yml
-
     # - name: Install ngroak
       # become: True
     # - name: download vault
