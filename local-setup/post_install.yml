@@ -1,4 +1,4 @@
-- name: "Ansible playbook example"
+- name: "Ubuntu family local setup"
   hosts: 127.0.0.1
   connection: local
   vars:
@@ -19,6 +19,16 @@
     - ngrok
 
   tasks:
+  - name: Remove useless packages from the cache
+    become: True
+    apt:
+      autoclean: yes
+
+  - name: Remove dependencies that are no longer required
+    become: True
+    apt:
+      autoremove: yes
+
     #   vars:
     # - name: Install ngroak
       # become: True

@@ -1,26 +1,47 @@
 ---
+- name: Check if ngrok is installed
+  stat:
+    path: /usr/local/bin/ngrok
+  register: ngrok_bin
+  ignore_errors: True
+
 - name: Get The Ngroak installed version
   shell: /usr/local/bin/ngrok --version 2> /dev/null | awk '{print $3}'
   register: ngrokVersion
   ignore_errors: True
-  changed_when: False
+  changed_when: ngrokVersion.stdout != ''
+  when: ngrok_bin.stat.exists
 
-- name: Get the Ngroak URL
-  shell: curl -s https://ngrok.com/download | grep 'id="dl-linux-amd64"' | grep -o "href=\".*.zip" | cut -d\" -f 2
-  register: ngrokUrl
+- name: get the webpage
+  get_url:
+    url: https://ngrok.com/download
+    dest: /tmp/ngrok-download.html
+
+- name: Grab the Download URL
+  shell: |
+    grep 'id="dl-linux-amd64"' /tmp/ngrok-download.html | grep -o "href=\".*.zip" | cut -d\" -f 2
+  register: ngrok_download_url
+
+- name: Check Output
+  debug:
+    msg: "Output : {{ ngrok_download_url }}"
+
+- name: Remove temp files
+  file:
+    path: /tmp/ngrok-download.html
+    state: absent
   ignore_errors: True
-  changed_when: False
 
 - name: Download the ZIP
   get_url:
-    url: "{{ ngrokUrl.stdout }}"
-    dest: "/tmp/ngrok.zip"
+    url: "{{ ngrok_download_url.stdout }}"
+    dest: /tmp/ngrok.zip
   ignore_errors: True
-  changed_when: False
+  changed_when: ngrok_download_url.stdout != ''
 
 - name: "Unarchive zip"
   unarchive:
-    src: "/tmp/ngrok.zip"
+    src: /tmp/ngrok.zip
     dest: "/tmp/"
     copy: False
   changed_when: False
@@ -31,12 +52,16 @@
   ignore_errors: True
   changed_when: False
 
-- name: Check if ngrok is installed
-  stat:
-    file: /usr/local/bin/ngrok
-  register: ngrok
-  ignore_errors: True
+- name: Upgrade if there is a new version
+  become: True
+  copy:
+    src: "/tmp/ngrok"
+    dest: "/usr/local/bin/ngrok"
+  ignore_errors: False
+  when: not ngrok_bin.stat.exists or ngrokVersion.stdout != ngrokNewVersion.stdout
 
-- name: Show ngrok version variable
-  debug:
-    msg: "ngrokUrl={{ ngrokUrl.stdout }} | ngrok={{ ngrok }}"
+- name: Cleanup temp
+  file:
+    path: /tmp/ngrok.zip
+    state: absent
+  ignore_errors: True

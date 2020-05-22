@@ -35,6 +35,7 @@
 - name: Show hub version variable
   debug:
     msg: "{{ hub_version }}"
+  changed_when: False
 
 - name: Show hub installed version
   debug:
@@ -46,29 +47,32 @@
     url: "https://github.com/github/hub/releases/download/v{{ hub_version.stdout }}/hub-linux-amd64-{{ hub_version.stdout }}.tgz"
     dest: "/tmp/{{ hub_version.stdout }}.tgz"
   ignore_errors: False
-  when: hub.stat.exists or hub_installed_version.stdout != hub_version.stdout
+  when: not hub.stat.exists or hub_installed_version.stdout != hub_version.stdout
+  changed_when: not hub.stat.exists or hub_installed_version.stdout != hub_version.stdout
 
 - name: "Unarchive source {{ hub_version.stdout }}"
   unarchive:
     src: "/tmp/{{ hub_version.stdout }}.tgz"
     dest: "/tmp/"
     copy: False
-  when: hub.stat.exists or hub_installed_version.stdout != hub_version.stdout
+  when: not hub.stat.exists or hub_installed_version.stdout != hub_version.stdout
 
 - name: Install Hub
   become: True
   shell: "cd /tmp/hub-linux-amd64-{{ hub_version.stdout }} && ./install"
   ignore_errors: False
-  when: hub.stat.exists or hub_installed_version.stdout != hub_version.stdout
+  when: not hub.stat.exists or hub_installed_version.stdout != hub_version.stdout
 
 - name: "Remove file /tmp/{{ hub_version.stdout }}.tgz"
   file:
     path: "/tmp/{{ hub_version.stdout }}.tgz"
     state: absent
   ignore_errors: True
+  changed_when: not hub.stat.exists or hub_installed_version.stdout != hub_version.stdout
 
 - name: "Recursively remove directory /tmp/hub-linux-amd64-{{ hub_version.stdout }}"
   file:
     path: "/tmp/hub-linux-amd64-{{ hub_version.stdout }}"
     state: absent
   ignore_errors: True
+  changed_when: not hub.stat.exists or hub_installed_version.stdout != hub_version.stdout
