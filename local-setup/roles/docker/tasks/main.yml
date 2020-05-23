@@ -1,17 +1,17 @@
 ---
-- name: Remove packages conflicting with docker-ce
+- name: Remove conflicting packages
   become: True
   apt:
     name: docker docker-engine docker.io containerd runc
     state: absent
 
-- name: Check if docker is installed
+- name: Check if it is already installed
   command: dpkg-query -W docker-ce
   register: docker_check_deb
   failed_when: docker_check_deb.rc > 1
   changed_when: docker_check_deb.rc == 1
 
-- name: "Check if docker is already installed?"
+- name: "Check if binary is already present"
   stat:
     path: /usr/bin/docker
   register: docker
@@ -23,14 +23,14 @@
     state: present
   when: docker_check_deb.rc == 1 and not docker.stat.exists
 
-- name: Add Docker repository key
+- name: Add the repository key
   become: True
   apt_key:
     url: https://download.docker.com/linux/ubuntu/gpg
     state: present
   when: docker_check_deb.rc == 1 and not docker.stat.exists
 
-- name: Add Docker repository source
+- name: Add the repository source
   become: True
   apt_repository:
     repo: "deb [arch=amd64] https://download.docker.com/linux/ubuntu {{ ubuntu_release_name }} stable"
@@ -39,7 +39,7 @@
     filename: docker
   when: docker_check_deb.rc == 1 and not docker.stat.exists
 
-- name: Run "apt-get update"
+- name: Update apt cache
   become: True
   apt:
     update_cache: True
@@ -47,14 +47,14 @@
   ignore_errors: True
   when: docker_check_deb.rc == 1
 
-- name: Install Docker
+- name: Install packages
   become: True
   apt:
     pkg: docker-ce
     state: present
   when: docker_check_deb.rc == 1
 
-- name: "Add the user {{ user_to_add_to_docker_group }} to docker group"
+- name: "Add the user {{ user_to_add_to_docker_group }} to correct group"
   become: True
   user:
     name: "{{ user_to_add_to_docker_group }}"
@@ -62,7 +62,7 @@
     groups:
       - docker
 
-- name: Reload Docker configuration
+- name: Reload service configuration
   become: True
   service:
     name: docker

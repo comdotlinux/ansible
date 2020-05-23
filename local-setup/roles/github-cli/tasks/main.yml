@@ -1,10 +1,10 @@
-- name: Check github.com/cli for new version
+- name: Check for latest version
   uri:
     url: "{{ gh_release_url }}"
     method: HEAD
   register: gh_release_resp
 
-- name: Github Cli release url
+- name: echo release url
   debug:
     msg: "{{ gh_release_resp.url }}"
   changed_when: False
@@ -15,20 +15,20 @@
   ignore_errors: False
   changed_when: False
 
-- name: Check if gh is installed
+- name: Check if it is already installed
   command: dpkg-query -W gh
   register: gh_check_deb
   failed_when: gh_check_deb.rc > 1
   changed_when: gh_check_deb.rc == 1
 
-- name: Extract installed gh release version
+- name: Extract version if it already installed
   shell: "dpkg-query -W gh | awk '{print $2}'"
   register: gh_installed_version
   ignore_errors: False
   changed_when: False
   when: gh_check_deb.rc == 0
 
-- name: Show gh binary stat
+- name: Show the binary stat
   debug:
     msg: "gh_installed_version : {{ gh_installed_version }}"
   changed_when: False
@@ -39,14 +39,14 @@
     gh_deb_name: "gh_{{ gh_version.stdout }}_linux_amd64.deb"
   when: gh_check_deb.rc == 1 or gh_installed_version.stdout != gh_version.stdout
 
-- name: Download gh
+- name: Download the package
   get_url:
     url: "{{ gh_download_url }}{{ gh_version.stdout }}/{{ gh_deb_name }}"
     dest: "/tmp/{{ gh_deb_name }}"
   ignore_errors: False
   when: gh_check_deb.rc == 1 or gh_installed_version.stdout != gh_version.stdout
 
-- name: Install gh
+- name: Install the package
   become: True
   apt:
     deb: "/tmp/{{ gh_deb_name }}"

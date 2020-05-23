@@ -1,11 +1,11 @@
 ---
-- name: Check if ngrok is installed
+- name: Check if it is already installed
   stat:
     path: /usr/local/bin/ngrok
   register: ngrok_bin
   ignore_errors: True
 
-- name: Get The Ngroak installed version
+- name: Get the installed version
   shell: /usr/local/bin/ngrok --version 2> /dev/null | awk '{print $3}'
   register: ngrokVersion
   ignore_errors: True

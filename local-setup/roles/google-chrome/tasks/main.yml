@@ -1,11 +1,11 @@
 ---
-- name: Check if chrome is installed
+- name: Check if it is already installed
   command: dpkg-query -W google-chrome-stable
   register: chrome_check_deb
   failed_when: chrome_check_deb.rc > 1
   changed_when: chrome_check_deb.rc == 1
 
-- name: Does the Google apt file exist?
+- name: Does the apt file exist?
   stat:
     path: "{{chrome_apt_file}}"
   register: google_apt_file
@@ -13,14 +13,14 @@
   changed_when: False
   when: chrome_check_deb.rc == 1
 
-- name: Add Google Chrome key
+- name: Add the signing key to apt-key
   become: True
   apt_key:
     url: https://dl-ssl.google.com/linux/linux_signing_key.pub
     state: present
   when: chrome_check_deb.rc == 1 and not google_apt_file.stat.exists
 
-- name: Add Google Chrome repo
+- name: Add repo if required
   become: True
   apt_repository:
     repo: "deb http://dl.google.com/linux/chrome/deb/ stable main"
@@ -35,7 +35,7 @@
     update_cache: yes
   when: chrome_check_deb.rc == 1 and not google_apt_file.stat.exists
 
-- name: Install Google Chrome
+- name: Install package
   become: True
   apt:
     pkg: google-chrome-stable

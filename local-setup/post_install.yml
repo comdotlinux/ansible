@@ -17,6 +17,8 @@
     - hub
     - keepassxc
     - ngrok
+    - smplayer
+    - peek
 
   tasks:
   - name: Remove useless packages from the cache
@@ -29,9 +31,6 @@
     apt:
       autoremove: yes
 
-    #   vars:
-    # - name: Install ngroak
-      # become: True
     # - name: download vault
     #   get_url:
     #     url: "{{ vault_download }}"

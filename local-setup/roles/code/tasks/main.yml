@@ -1,5 +1,5 @@
 ---
-- name: Check if code is installed
+- name: Check if it is already installed
   command: dpkg-query -W code
   register: code_check_deb
   failed_when: code_check_deb.rc > 1
@@ -19,7 +19,7 @@
     mode: '0755'
   when: code_check_deb.rc == 1 and not vscode_gpg_location_info.stat.exists
 
-- name: Download microsoft apt repository key
+- name: Download the apt repository key
   get_url:
     url: https://packages.microsoft.com/keys/microsoft.asc
     dest: "{{ code_dir_tmp }}/{{ asc_file_tmp }}"
@@ -46,7 +46,7 @@
   ignore_errors: True
   when: code_check_deb.rc == 1
 
-- name: Create the vscode.list file
+- name: Create the list file
   become: True
   file:
     path: "{{ vscode_list_file }}"
@@ -78,9 +78,8 @@
     update_cache: True
   when: code_check_deb.rc == 1
 
-- name: Install VS Code
+- name: Install package
   become: True
   apt:
     state: latest
     pkg: code
-  when: code_check_deb.rc == 1

@@ -10,21 +10,7 @@
   become: True
   apt:
     state: latest
-    pkg:
-      - stow
-      - neovim
-      - htop
-      - conky-all
-      - byobu
-      - evolution-ews
-      - guake
-      - autokey-gtk
-      - slack-desktop
-      - powerline
-      - curl
-      - unzip
-      - bat
-
+    pkg: "stow, neovim, htop, conky-all, byobu, evolution-ews, guake, autokey-gtk, slack-desktop, powerline, curl, unzip, bat"
 
 - name: Check batcat is present before moving cat
   stat:

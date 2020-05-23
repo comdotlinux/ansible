@@ -1,21 +1,21 @@
 ---
 - name: Check if it is already installed
-  command: dpkg-query -W peek
-  register: peek_check_deb
-  failed_when: peek_check_deb.rc > 1
-  changed_when: peek_check_deb.rc == 1
+  command: dpkg-query -W smplayer
+  register: smplayer_check_deb
+  failed_when: smplayer_check_deb.rc > 1
+  changed_when: smplayer_check_deb.rc == 1
 
 - name: Install apt-transport-https
   become: True
   apt:
     name: apt-transport-https
     state: present
-  when: peek_check_deb.rc == 1
+  when: smplayer_check_deb.rc == 1
 
 - name: Add Repository source
   become: True
   apt_repository:
-    repo: 'ppa:peek-developers/stable'
+    repo: 'ppa:rvm/smplayer'
     state: present
     update_cache: True
 
@@ -23,4 +23,4 @@
   become: True
   apt:
     state: latest
-    pkg: peek
+    pkg: "smplayer, smplayer-themes, smplayer-skins"

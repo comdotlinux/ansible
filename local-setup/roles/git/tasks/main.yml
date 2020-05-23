@@ -1,5 +1,5 @@
 ---
-- name: Check if docker is installed
+- name: Check if it is already installed
   command: dpkg-query -W git
   register: git_check_deb
   failed_when: git_check_deb.rc > 1
@@ -12,14 +12,14 @@
     state: present
   when: git_check_deb.rc == 1
 
-- name: Add Git repository source
+- name: Add repository source
   become: True
   apt_repository:
     repo: 'ppa:git-core/ppa'
     state: present
     update_cache: True
 
-- name: Install Git and related packages
+- name: Install packages
   become: True
   apt:
     state: latest
