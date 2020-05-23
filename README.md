@@ -1,4 +1,5 @@
 # ansible
+![Ansible Lint Check](https://github.com/comdotlinux/ansible/workflows/Ansible%20Lint%20Check/badge.svg?branch=master)
 
 All my ansible playbooks are stored here.
 
