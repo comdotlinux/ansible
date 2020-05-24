@@ -61,13 +61,14 @@
   stat:
     path: "{{ ngrok_binary_install_path }}"
   register: ngrok_bin_path
+  ignore_errors: false
 
 - name: Set the executable permission if it is not executable
   become: true
   file:
     path: "{{ ngrok_binary_install_path }}"
     mode: '0755'
-  when: ngrok_bin_path.mode != '0755'
+  when: ngrok_bin_path.stat.mode != '0755'
 
 - name: Cleanup temp
   file:
