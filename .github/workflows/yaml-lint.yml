@@ -1,5 +1,5 @@
 ---
-name: ansible-lint
+name: yaml-lint
 # yamllint disable
 on:
   push:
@@ -29,7 +29,5 @@ jobs:
             ${{ runner.os }}-
       - name: Install dependencies
         run: pip install -U pip && pip install -r requirements.txt
-      - name: Run Ansible Lit
-        run: ansible-lint local-setup/post_install.yml
-      - name: Run Ansible Playbook Syntax Check
-        run: ansible-playbook --syntax-check local-setup/post_install.yml
+      - name: Run Yaml Lint
+        run: yamllint .

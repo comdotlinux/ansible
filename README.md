@@ -1,7 +1,6 @@
-# ansible
-![Ansible Lint Check](https://github.com/comdotlinux/ansible/workflows/Ansible%20Lint%20Check/badge.svg?branch=master)
+# ansible ![yaml-lint](https://github.com/comdotlinux/ansible/workflows/yaml-lint/badge.svg) ![ansible-lint](https://github.com/comdotlinux/ansible/workflows/ansible-lint/badge.svg) 
 
-All my ansible playbooks are stored here.
+All my ansible playbooks are stored here. However not all are maintained.
 
 ## My Local setup (only tested on Linux Mint / Ubuntu / Pop OS)
 
@@ -31,9 +30,9 @@ All my ansible playbooks are stored here.
    1. [KeepassXC](https://launchpad.net/~phoerious/+archive/ubuntu/keepassxc)
    1. [Ngrok](https://ngrok.com/download)
    1. [Smplayer](https://www.smplayer.info/en/downloads)
+   1. [peek](https://github.com/phw/peek#ubuntu)
 
 1. In Progress
-   1. peek
    1. yubico
    1. :)
 
