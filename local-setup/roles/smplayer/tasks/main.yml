@@ -6,21 +6,21 @@
   changed_when: smplayer_check_deb.rc == 1
 
 - name: Install apt-transport-https
-  become: True
+  become: true
   apt:
     name: apt-transport-https
     state: present
   when: smplayer_check_deb.rc == 1
 
 - name: Add Repository source
-  become: True
+  become: true
   apt_repository:
     repo: 'ppa:rvm/smplayer'
     state: present
-    update_cache: True
+    update_cache: true
 
 - name: Install packages
-  become: True
+  become: true
   apt:
     state: latest
     pkg: "smplayer, smplayer-themes, smplayer-skins"

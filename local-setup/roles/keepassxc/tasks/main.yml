@@ -6,15 +6,15 @@
   changed_when: keepassxc_check_deb.rc == 1
 
 - name: Add the ppa
-  become: yes
+  become: true
   apt_repository:
     repo: 'ppa:phoerious/keepassxc'
     state: present
-    update_cache: yes
+    update_cache: true
   when: keepassxc_check_deb.rc == 1
 
 - name: Install the package
-  become: yes
+  become: true
   apt:
     state: latest
     pkg: keepassxc

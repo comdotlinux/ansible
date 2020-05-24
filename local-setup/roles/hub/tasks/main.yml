@@ -1,3 +1,4 @@
+---
 - name: Check for new version
   uri:
     url: "{{ hub_release_url }}"
@@ -7,41 +8,41 @@
 - name: echo release url
   debug:
     msg: "{{ hub_release_resp.url }}"
-  changed_when: False
+  changed_when: false
 
 - name: "Check if it is already installed"
   stat:
     path: /usr/local/bin/hub
   register: hub
-  changed_when: False
+  changed_when: false
 
 - name: Show the binary stat
   debug:
     msg: "{{ hub.stat }}"
-  changed_when: False
+  changed_when: false
 
 - name: Extract release version
   shell: "echo {{ hub_release_resp.url }} | sed 's_{{ hub_strip_url }}__'"
   register: hub_version
-  ignore_errors: False
-  changed_when: False
+  ignore_errors: false
+  changed_when: false
 
 - name: Check current installed version
   shell: "/usr/local/bin/hub --version | sed -n '/hub version/s_hub version __p'"
   register: hub_installed_version
-  ignore_errors: True
-  changed_when: False
+  ignore_errors: true
+  changed_when: false
 
 - name: Show the versions variable
   debug:
     msg: "new version : {{ hub_version }}, installed version : {{ hub_installed_version }}"
-  changed_when: False
+  changed_when: false
 
 - name: Download new version
   get_url:
     url: "https://github.com/github/hub/releases/download/v{{ hub_version.stdout }}/hub-linux-amd64-{{ hub_version.stdout }}.tgz"
     dest: "/tmp/{{ hub_version.stdout }}.tgz"
-  ignore_errors: False
+  ignore_errors: false
   when: not hub.stat.exists or hub_installed_version.stdout != hub_version.stdout
   changed_when: not hub.stat.exists or hub_installed_version.stdout != hub_version.stdout
 
@@ -49,25 +50,25 @@
   unarchive:
     src: "/tmp/{{ hub_version.stdout }}.tgz"
     dest: "/tmp/"
-    copy: False
+    copy: false
   when: not hub.stat.exists or hub_installed_version.stdout != hub_version.stdout
 
 - name: Install the binary
-  become: True
+  become: true
   shell: "cd /tmp/hub-linux-amd64-{{ hub_version.stdout }} && ./install"
-  ignore_errors: False
+  ignore_errors: false
   when: not hub.stat.exists or hub_installed_version.stdout != hub_version.stdout
 
 - name: "Remove file /tmp/{{ hub_version.stdout }}.tgz"
   file:
     path: "/tmp/{{ hub_version.stdout }}.tgz"
     state: absent
-  ignore_errors: True
+  ignore_errors: true
   changed_when: not hub.stat.exists or hub_installed_version.stdout != hub_version.stdout
 
 - name: "Recursively remove directory /tmp/hub-linux-amd64-{{ hub_version.stdout }}"
   file:
     path: "/tmp/hub-linux-amd64-{{ hub_version.stdout }}"
     state: absent
-  ignore_errors: True
+  ignore_errors: true
   changed_when: not hub.stat.exists or hub_installed_version.stdout != hub_version.stdout

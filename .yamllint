@@ -1,0 +1,12 @@
+---
+extends: default
+
+ignore: |
+  .vscode
+  .venv
+  README.md
+
+rules:
+  line-length:
+    max: 180
+    level: warning

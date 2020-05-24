@@ -1,3 +1,4 @@
+---
 - name: "Ansible playbook example"
   hosts: 127.0.0.1
   connection: local
@@ -5,21 +6,21 @@
     - ubuntu_release_name: focal
 
   tasks:
-  - name: get the webpage
-    get_url:
-      url: https://ngrok.com/download
-      dest: /tmp/ngrok-download.html
+    - name: get the webpage
+      get_url:
+        url: https://ngrok.com/download
+        dest: /tmp/ngrok-download.html
 
-  - name: Grab the Download URL
-    shell: |
-      grep 'id="dl-linux-amd64"' /tmp/ngrok-download.html | grep -o "href=\".*.zip" | cut -d\" -f 2
-    register: ngrok_download_url
+    - name: Grab the Download URL
+      shell: |
+        grep 'id="dl-linux-amd64"' /tmp/ngrok-download.html | grep -o "href=\".*.zip" | cut -d\" -f 2
+      register: ngrok_download_url
 
-  - name: Check Output
-    debug:
-      msg: "Output : {{ ngrok_download_url }}"
+    - name: Check Output
+      debug:
+        msg: "Output : {{ ngrok_download_url }}"
 
-  - name: Remove temp files
-    file:
-      path: /tmp/ngrok-download.html
-      state: absent
+    - name: Remove temp files
+      file:
+        path: /tmp/ngrok-download.html
+        state: absent

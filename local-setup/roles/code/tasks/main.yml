@@ -9,7 +9,7 @@
   stat:
     path: "{{ vscode_gpg_location }}/{{ vscdoe_gpg_filename }}"
   register: vscode_gpg_location_info
-  ignore_errors: True
+  ignore_errors: true
   when: code_check_deb.rc == 1
 
 - name: Create a directory if it does not exist
@@ -30,7 +30,7 @@
   when: code_check_deb.rc == 1 and not vscode_gpg_location_info.stat.exists
 
 - name: Copy file with owner and permissions
-  become: True
+  become: true
   copy:
     src: "{{ code_dir_tmp }}/{{ vscdoe_gpg_filename }}"
     dest: "{{ vscode_gpg_location }}/{{ vscdoe_gpg_filename }}"
@@ -43,20 +43,20 @@
   file:
     path: "{{ code_dir_tmp }}"
     state: absent
-  ignore_errors: True
+  ignore_errors: true
   when: code_check_deb.rc == 1
 
 - name: Create the list file
-  become: True
+  become: true
   file:
     path: "{{ vscode_list_file }}"
     state: touch
-  ignore_errors: True
-  changed_when: False
+  ignore_errors: true
+  changed_when: false
   when: code_check_deb.rc == 1
 
 - name: Add the repository
-  become: True
+  become: true
   lineinfile:
     path: "{{ vscode_list_file }}"
     line: "deb [arch=amd64 signed-by={{ vscode_gpg_location }}/{{ vscdoe_gpg_filename }}] https://packages.microsoft.com/repos/vscode stable main"
@@ -65,21 +65,21 @@
   when: code_check_deb.rc == 1
 
 - name: Install apt transport https
-  become: True
+  become: true
   apt:
     state: latest
     pkg: apt-transport-https
   when: code_check_deb.rc == 1
 
 - name: Run "apt-get update"
-  become: True
-  ignore_errors: True
+  become: true
+  ignore_errors: true
   apt:
-    update_cache: True
+    update_cache: true
   when: code_check_deb.rc == 1
 
 - name: Install package
-  become: True
+  become: true
   apt:
     state: latest
     pkg: code

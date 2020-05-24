@@ -1,6 +1,6 @@
 ---
 - name: Remove conflicting packages
-  become: True
+  become: true
   apt:
     name: docker docker-engine docker.io containerd runc
     state: absent
@@ -17,53 +17,53 @@
   register: docker
 
 - name: Install apt-transport-https
-  become: True
+  become: true
   apt:
     name: apt-transport-https
     state: present
   when: docker_check_deb.rc == 1 and not docker.stat.exists
 
 - name: Add the repository key
-  become: True
+  become: true
   apt_key:
     url: https://download.docker.com/linux/ubuntu/gpg
     state: present
   when: docker_check_deb.rc == 1 and not docker.stat.exists
 
 - name: Add the repository source
-  become: True
+  become: true
   apt_repository:
     repo: "deb [arch=amd64] https://download.docker.com/linux/ubuntu {{ ubuntu_release_name }} stable"
     state: present
-    update_cache: True
+    update_cache: true
     filename: docker
   when: docker_check_deb.rc == 1 and not docker.stat.exists
 
 - name: Update apt cache
-  become: True
+  become: true
   apt:
-    update_cache: True
+    update_cache: true
     cache_valid_time: "3600"
-  ignore_errors: True
+  ignore_errors: true
   when: docker_check_deb.rc == 1
 
 - name: Install packages
-  become: True
+  become: true
   apt:
     pkg: docker-ce
     state: present
   when: docker_check_deb.rc == 1
 
 - name: "Add the user {{ user_to_add_to_docker_group }} to correct group"
-  become: True
+  become: true
   user:
     name: "{{ user_to_add_to_docker_group }}"
-    append: True
+    append: true
     groups:
       - docker
 
 - name: Reload service configuration
-  become: True
+  become: true
   service:
     name: docker
     state: started

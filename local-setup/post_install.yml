@@ -1,3 +1,4 @@
+---
 - name: "Ubuntu family local setup"
   hosts: 127.0.0.1
   connection: local
@@ -19,73 +20,72 @@
     - ngrok
     - smplayer
     - peek
-
   tasks:
-  - name: Remove useless packages from the cache
-    become: True
-    apt:
-      autoclean: yes
+    - name: Remove useless packages from the cache
+      become: true
+      apt:
+        autoclean: true
 
-  - name: Remove dependencies that are no longer required
-    become: True
-    apt:
-      autoremove: yes
+    - name: Remove dependencies that are no longer required
+      become: true
+      apt:
+        autoremove: true
 
-    # - name: download vault
-    #   get_url:
-    #     url: "{{ vault_download }}"
-    #     dest: /tmp
-    # - name: unzip vault download
-    #   become: True
-    #   unarchive:
-    #     src: /tmp/{{ vault_file }}
-    #     dest: /usr/local/bin
-    #     remote_src: True
-    # - name: set permissions and ownersip correct for vault executable
-    #   become: True
-    #   file:
-    #     path: /usr/local/bin/vault
-    #     owner: vault
-    #     group: vault
-    #     mode: 0755
-    # - name: set memlock capability on vault executable for security
-    #   become: True
-    #   shell: >
-    #     setcap cap_ipc_lock=+ep /usr/local/bin/vault
-    # - name: create vault systemd service to run vault as system daemon
-    #     become: true
-    #     shell: |
-    #       echo "[Unit]
-    #       Description="a tool for managing secrets"
-    #       Documentation=https://www.vaultproject.io/docs/
-    #       Requires=network-online.target
-    #       After=network-online.target
-    #       ConditionFileNotEmpty=/etc/vault.d/vault.hcl
+# - name: download vault
+#   get_url:
+#     url: "{{ vault_download }}"
+#     dest: /tmp
+# - name: unzip vault download
+#   become: true
+#   unarchive:
+#     src: /tmp/{{ vault_file }}
+#     dest: /usr/local/bin
+#     remote_src: true
+# - name: set permissions and ownersip correct for vault executable
+#   become: true
+#   file:
+#     path: /usr/local/bin/vault
+#     owner: vault
+#     group: vault
+#     mode: 0755
+# - name: set memlock capability on vault executable for security
+#   become: true
+#   shell: >
+#     setcap cap_ipc_lock=+ep /usr/local/bin/vault
+# - name: create vault systemd service to run vault as system daemon
+#     become: true
+#     shell: |
+#       echo "[Unit]
+#       Description="a tool for managing secrets"
+#       Documentation=https://www.vaultproject.io/docs/
+#       Requires=network-online.target
+#       After=network-online.target
+#       ConditionFileNotEmpty=/etc/vault.d/vault.hcl
 
-    #       [Service]
-    #       User=vault
-    #       Group=vault
-    #       ProtectSystem=full
-    #       ProtectHome=read-only
-    #       PrivateTmp=yes
-    #       PrivateDevices=yes
-    #       SecureBits=keep-caps
-    #       AmbientCapabilities=CAP_IPC_LOCK
-    #       Capabilities=CAP_IPC_LOCK+ep
-    #       CapabilityBoundingSet=CAP_SYSLOG CAP_IPC_LOCK
-    #       NoNewPrivileges=yes
-    #       ExecStart=/usr/local/bin/vault server -config=/etc/vault.d/vault.hcl
-    #       ExecReload=/bin/kill --signal HUP $MAINPID
-    #       KillMode=process
-    #       KillSignal=SIGINT
-    #       Restart=on-failure
-    #       RestartSec=5
-    #       TimeoutStopSec=30
-    #       StartLimitIntervalSec=60
-    #       StartLimitBurst=3
-    #       LimitNOFILE=65536
+#       [Service]
+#       User=vault
+#       Group=vault
+#       ProtectSystem=full
+#       ProtectHome=read-only
+#       PrivateTmp=yes
+#       PrivateDevices=yes
+#       SecureBits=keep-caps
+#       AmbientCapabilities=CAP_IPC_LOCK
+#       Capabilities=CAP_IPC_LOCK+ep
+#       CapabilityBoundingSet=CAP_SYSLOG CAP_IPC_LOCK
+#       NoNewPrivileges=yes
+#       ExecStart=/usr/local/bin/vault server -config=/etc/vault.d/vault.hcl
+#       ExecReload=/bin/kill --signal HUP $MAINPID
+#       KillMode=process
+#       KillSignal=SIGINT
+#       Restart=on-failure
+#       RestartSec=5
+#       TimeoutStopSec=30
+#       StartLimitIntervalSec=60
+#       StartLimitBurst=3
+#       LimitNOFILE=65536
 
-    #       [Install]
-    #       WantedBy=multi-user.target" > /etc/systemd/system/vault.service
-    #     args:
-    #       creates: /etc/systemd/system/vault.service
+#       [Install]
+#       WantedBy=multi-user.target" > /etc/systemd/system/vault.service
+#     args:
+#       creates: /etc/systemd/system/vault.service

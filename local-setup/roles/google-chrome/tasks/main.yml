@@ -9,34 +9,34 @@
   stat:
     path: "{{chrome_apt_file}}"
   register: google_apt_file
-  ignore_errors: True
-  changed_when: False
+  ignore_errors: true
+  changed_when: false
   when: chrome_check_deb.rc == 1
 
 - name: Add the signing key to apt-key
-  become: True
+  become: true
   apt_key:
     url: https://dl-ssl.google.com/linux/linux_signing_key.pub
     state: present
   when: chrome_check_deb.rc == 1 and not google_apt_file.stat.exists
 
 - name: Add repo if required
-  become: True
+  become: true
   apt_repository:
     repo: "deb http://dl.google.com/linux/chrome/deb/ stable main"
     state: present
-    update_cache: True
+    update_cache: true
     filename: "{{ google_chrome_list_file }}"
   when: chrome_check_deb.rc == 1 and not google_apt_file.stat.exists
 
 - name: Update apt cache
-  become: True
+  become: true
   apt:
-    update_cache: yes
+    update_cache: true
   when: chrome_check_deb.rc == 1 and not google_apt_file.stat.exists
 
 - name: Install package
-  become: True
+  become: true
   apt:
     pkg: google-chrome-stable
     state: present

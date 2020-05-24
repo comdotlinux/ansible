@@ -1,3 +1,4 @@
+---
 - name: Check for latest version
   uri:
     url: "{{ gh_release_url }}"
@@ -7,13 +8,13 @@
 - name: echo release url
   debug:
     msg: "{{ gh_release_resp.url }}"
-  changed_when: False
+  changed_when: false
 
 - name: Extract release version
   shell: "echo {{ gh_release_resp.url }} | sed 's_{{ gh_strip_url }}__'"
   register: gh_version
-  ignore_errors: False
-  changed_when: False
+  ignore_errors: false
+  changed_when: false
 
 - name: Check if it is already installed
   command: dpkg-query -W gh
@@ -24,14 +25,14 @@
 - name: Extract version if it already installed
   shell: "dpkg-query -W gh | awk '{print $2}'"
   register: gh_installed_version
-  ignore_errors: False
-  changed_when: False
+  ignore_errors: false
+  changed_when: false
   when: gh_check_deb.rc == 0
 
 - name: Show the binary stat
   debug:
     msg: "gh_installed_version : {{ gh_installed_version }}"
-  changed_when: False
+  changed_when: false
   when: gh_check_deb.rc == 1 or gh_installed_version.stdout != gh_version.stdout
 
 - name: Set the filename
@@ -43,11 +44,11 @@
   get_url:
     url: "{{ gh_download_url }}{{ gh_version.stdout }}/{{ gh_deb_name }}"
     dest: "/tmp/{{ gh_deb_name }}"
-  ignore_errors: False
+  ignore_errors: false
   when: gh_check_deb.rc == 1 or gh_installed_version.stdout != gh_version.stdout
 
 - name: Install the package
-  become: True
+  become: true
   apt:
     deb: "/tmp/{{ gh_deb_name }}"
   when: gh_check_deb.rc == 1 or gh_installed_version.stdout != gh_version.stdout
@@ -56,5 +57,5 @@
   file:
     path: "/tmp/{{ gh_deb_name }}"
     state: absent
-  ignore_errors: True
+  ignore_errors: true
   when: gh_check_deb.rc == 1 or gh_installed_version.stdout != gh_version.stdout

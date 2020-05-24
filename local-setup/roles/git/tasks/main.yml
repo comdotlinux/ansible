@@ -6,21 +6,21 @@
   changed_when: git_check_deb.rc == 1
 
 - name: Install apt-transport-https
-  become: True
+  become: true
   apt:
     name: apt-transport-https
     state: present
   when: git_check_deb.rc == 1
 
 - name: Add repository source
-  become: True
+  become: true
   apt_repository:
     repo: 'ppa:git-core/ppa'
     state: present
-    update_cache: True
+    update_cache: true
 
 - name: Install packages
-  become: True
+  become: true
   apt:
     state: latest
     pkg: "git, git-flow, hub, git-lfs"

@@ -5,13 +5,13 @@
     id: 32CBA1A9
     state: present
 - name: Add Yubico ppa
-  become: yes
+  become: true
   apt_repository:
     repo: 'ppa:yubico/stable'
     state: present
-    update_cache: yes
+    update_cache: true
 - name: Install YubiCo package
-  become: yes
+  become: true
   apt:
     state: latest
     pkg: yubikey-personalization-gui
