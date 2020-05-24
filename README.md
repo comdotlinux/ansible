@@ -1,4 +1,4 @@
-# ansible ![ansible-lint](https://github.com/comdotlinux/ansible/workflows/ansible-lint/badge.svg)
+# ansible ![yaml-lint](https://github.com/comdotlinux/ansible/workflows/yaml-lint/badge.svg) ![ansible-lint](https://github.com/comdotlinux/ansible/workflows/ansible-lint/badge.svg) 
 
 All my ansible playbooks are stored here. However not all are maintained.
 
