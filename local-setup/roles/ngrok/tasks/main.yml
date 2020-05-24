@@ -1,14 +1,17 @@
 ---
 - name: Check if it is already installed
   stat:
-    path: /usr/local/bin/ngrok
+    path: "{{ ngrok_binary_install_path }}"
   register: ngrok_bin
   ignore_errors: true
 
+- name: Check Output
+  debug:
+    msg: "ngrok_bin : {{ ngrok_bin }}"
+
 - name: Get the installed version
-  shell: /usr/local/bin/ngrok --version 2> /dev/null | awk '{print $3}'
+  shell: "{{ ngrok_binary_install_path }} --version 2> /dev/null | awk '{print $3}'"
   register: ngrokVersion
-  ignore_errors: true
   changed_when: ngrokVersion.stdout | length > 0
   when: ngrok_bin.stat.exists
 
@@ -16,54 +19,66 @@
   get_url:
     url: https://ngrok.com/download
     dest: /tmp/ngrok-download.html
-  changed_when: false
+  changed_when: not ngrok_bin.stat.exists
 
 - name: Grab the Download URL
   shell: grep 'id="dl-linux-amd64"' /tmp/ngrok-download.html | grep -o "href=\".*.zip" | cut -d\" -f 2
   register: ngrok_download_url
-  changed_when: false
+  changed_when: not ngrok_bin.stat.exists
 
 - name: Check Output
   debug:
     msg: "Output : {{ ngrok_download_url }}"
 
-- name: Remove temp files
-  file:
-    path: /tmp/ngrok-download.html
-    state: absent
-  ignore_errors: true
-  changed_when: false
-
 - name: Download the ZIP
   get_url:
     url: "{{ ngrok_download_url.stdout }}"
     dest: /tmp/ngrok.zip
-  changed_when: false
+  changed_when: not ngrok_bin.stat.exists
 
 - name: "Unarchive zip"
   unarchive:
     src: /tmp/ngrok.zip
     dest: "/tmp/"
     copy: false
-  changed_when: false
+  changed_when: not ngrok_bin.stat.exists
 
 - name: Get The Ngroak version from zip
   shell: /tmp/ngrok --version 2> /dev/null | awk '{print $3}'
   register: ngrokNewVersion
   ignore_errors: true
-  changed_when: false
+  changed_when: not ngrok_bin.stat.exists
 
 - name: Upgrade if there is a new version
   become: true
   copy:
     src: "/tmp/ngrok"
-    dest: "/usr/local/bin/ngrok"
+    dest: "{{ ngrok_binary_install_path }}"
   ignore_errors: false
   when: not ngrok_bin.stat.exists or ngrokVersion.stdout != ngrokNewVersion.stdout
+
+- name: Get installed stats
+  stat:
+    path: "{{ ngrok_binary_install_path }}"
+  register: ngrok_bin_path
+
+- name: Set the executable permission if it is not executable
+  become: true
+  file:
+    path: "{{ ngrok_binary_install_path }}"
+    mode: '0755'
+  when: ngrok_bin_path.mode != '0755'
 
 - name: Cleanup temp
   file:
     path: /tmp/ngrok.zip
+    state: absent
+  ignore_errors: true
+  changed_when: false
+
+- name: Remove temp files
+  file:
+    path: /tmp/ngrok-download.html
     state: absent
   ignore_errors: true
   changed_when: false
