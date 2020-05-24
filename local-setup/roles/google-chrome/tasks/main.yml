@@ -7,7 +7,7 @@
 
 - name: Does the apt file exist?
   stat:
-    path: "{{chrome_apt_file}}"
+    path: "{{ chrome_apt_file }}"
   register: google_apt_file
   ignore_errors: true
   changed_when: false

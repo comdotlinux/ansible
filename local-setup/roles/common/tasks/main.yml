@@ -20,8 +20,12 @@
 
 - name: Also check if we already have bat set as default
   shell: |
+    set -o pipefail
     cat --version | awk '{print $1}'
+  args:
+    executable: /bin/bash
   register: current_cat
+  changed_when: false
 
 - name: Copy cat to oldcat
   become: true
