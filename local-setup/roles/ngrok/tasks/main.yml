@@ -19,11 +19,7 @@
   changed_when: false
 
 - name: Grab the Download URL
-  shell: |
-    set -o pipefail
-    grep 'id="dl-linux-amd64"' /tmp/ngrok-download.html | grep -o "href=\".*.zip" | cut -d\" -f 2
-  args:
-    executable: /bin/bash
+  shell: grep 'id="dl-linux-amd64"' /tmp/ngrok-download.html | grep -o "href=\".*.zip" | cut -d\" -f 2
   register: ngrok_download_url
   changed_when: false
 
@@ -36,13 +32,13 @@
     path: /tmp/ngrok-download.html
     state: absent
   ignore_errors: true
+  changed_when: false
 
 - name: Download the ZIP
   get_url:
     url: "{{ ngrok_download_url.stdout }}"
     dest: /tmp/ngrok.zip
-  ignore_errors: true
-  changed_when: ngrok_download_url.stdout | length > 0
+  changed_when: false
 
 - name: "Unarchive zip"
   unarchive:
@@ -52,11 +48,7 @@
   changed_when: false
 
 - name: Get The Ngroak version from zip
-  shell: |
-    set -o pipefail
-    /tmp/ngrok --version 2> /dev/null | awk '{print $3}'
-  args:
-    executable: /bin/bash
+  shell: /tmp/ngrok --version 2> /dev/null | awk '{print $3}'
   register: ngrokNewVersion
   ignore_errors: true
   changed_when: false
@@ -74,3 +66,4 @@
     path: /tmp/ngrok.zip
     state: absent
   ignore_errors: true
+  changed_when: false

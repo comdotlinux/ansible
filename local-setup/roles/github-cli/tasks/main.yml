@@ -11,11 +11,7 @@
   changed_when: false
 
 - name: Extract release version
-  shell: |
-    set -o pipefail
-    "echo {{ gh_release_resp.url }} | sed 's_{{ gh_strip_url }}__'"
-  args:
-    executable: /bin/bash
+  shell: echo {{ gh_release_resp.url }} | sed 's_{{ gh_strip_url }}__'
   register: gh_version
   ignore_errors: false
   changed_when: false
@@ -27,11 +23,7 @@
   changed_when: gh_check_deb.rc == 1
 
 - name: Extract version if it already installed
-  shell: |
-    set -o pipefail
-    "dpkg-query -W gh | awk '{print $2}'"
-  args:
-    executable: /bin/bash
+  shell: dpkg-query -W gh | awk '{print $2}'
   register: gh_installed_version
   ignore_errors: false
   changed_when: false

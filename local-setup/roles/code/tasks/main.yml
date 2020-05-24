@@ -26,11 +26,7 @@
   when: code_check_deb.rc == 1 and not vscode_gpg_location_info.stat.exists
 
 - name: Convert The Key using gpg --armor
-  shell: |
-    set -o pipefail
-    "cat {{ code_dir_tmp }}/{{ asc_file_tmp }} | gpg --dearmor > {{ code_dir_tmp }}/{{ vscdoe_gpg_filename }}"
-  args:
-    executable: /bin/bash
+  shell: cat {{ code_dir_tmp }}/{{ asc_file_tmp }} | gpg --dearmor > {{ code_dir_tmp }}/{{ vscdoe_gpg_filename }}
   when: code_check_deb.rc == 1 and not vscode_gpg_location_info.stat.exists
 
 - name: Copy file with owner and permissions

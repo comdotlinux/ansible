@@ -22,11 +22,7 @@
   changed_when: false
 
 - name: Extract release version
-  shell: |
-    set -o pipefail
-    "echo {{ hub_release_resp.url }} | sed 's_{{ hub_strip_url }}__'"
-  args:
-    executable: /bin/bash
+  shell: echo {{ hub_release_resp.url }} | sed 's_{{ hub_strip_url }}__'
   register: hub_version
   ignore_errors: false
   changed_when: false

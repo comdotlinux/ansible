@@ -19,11 +19,7 @@
   ignore_errors: true
 
 - name: Also check if we already have bat set as default
-  shell: |
-    set -o pipefail
-    cat --version | awk '{print $1}'
-  args:
-    executable: /bin/bash
+  shell: cat --version | awk '{print $1}'
   register: current_cat
   changed_when: false
 
@@ -32,14 +28,14 @@
   copy:
     src: "{{ cat_path }}"
     dest: "{{ oldcat_path }}"
-  when: bat_cat.stat.exists and current_cat.stdout != bat
+  when: bat_cat.stat.exists and current_cat.stdout != 'bat'
 
 - name: Remove cat
   become: true
   file:
     path: "{{ cat_path }}"
     state: absent
-  when: bat_cat.stat.exists and current_cat.stdout != bat
+  when: bat_cat.stat.exists and current_cat.stdout != 'bat'
 
 - name: Set Batman to be a default cat be setting alternative of cat
   become: true
@@ -48,7 +44,7 @@
     link: "{{ cat_path }}"
     path: "{{ batcat_path }}"
     priority: 20
-  when: bat_cat.stat.exists and current_cat.stdout != bat
+  when: bat_cat.stat.exists and current_cat.stdout != 'bat'
 
 - name: Set {{ oldcat_path }} to be a backup cat
   become: true
@@ -57,4 +53,4 @@
     link: "{{ cat_path }}"
     path: "{{ oldcat_path }}"
     priority: 10
-  when: bat_cat.stat.exists and current_cat.stdout != bat
+  when: bat_cat.stat.exists and current_cat.stdout != 'bat'
