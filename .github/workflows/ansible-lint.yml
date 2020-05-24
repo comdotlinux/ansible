@@ -29,8 +29,6 @@ jobs:
             ${{ runner.os }}-
       - name: Install dependencies
         run: pip install -U pip && pip install -r requirements.txt
-      - name: Run Yaml Lint
-        run: yamllint .
       - name: Run Ansible Lit
         run: ansible-lint local-setup/post_install.yml
       - name: Run Ansible Playbook Syntax Check
