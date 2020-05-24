@@ -30,6 +30,7 @@ All my ansible playbooks are stored here.
    1. Installs [hub](https://hub.github.com)
    1. [KeepassXC](https://launchpad.net/~phoerious/+archive/ubuntu/keepassxc)
    1. [Ngrok](https://ngrok.com/download)
+   1. [Smplayer](https://www.smplayer.info/en/downloads)
 
 1. In Progress
    1. peek

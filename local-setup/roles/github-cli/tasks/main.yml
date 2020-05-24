@@ -1,37 +1,46 @@
-- name: Check github.com/cli for new version
+---
+- name: Check for latest version
   uri:
     url: "{{ gh_release_url }}"
     method: HEAD
   register: gh_release_resp
 
-- name: Github Cli release url
+- name: echo release url
   debug:
     msg: "{{ gh_release_resp.url }}"
-  changed_when: False
+  changed_when: false
 
 - name: Extract release version
-  shell: "echo {{ gh_release_resp.url }} | sed 's_{{ gh_strip_url }}__'"
+  shell: |
+    set -o pipefail
+    "echo {{ gh_release_resp.url }} | sed 's_{{ gh_strip_url }}__'"
+  args:
+    executable: /bin/bash
   register: gh_version
-  ignore_errors: False
-  changed_when: False
+  ignore_errors: false
+  changed_when: false
 
-- name: Check if gh is installed
+- name: Check if it is already installed
   command: dpkg-query -W gh
   register: gh_check_deb
   failed_when: gh_check_deb.rc > 1
   changed_when: gh_check_deb.rc == 1
 
-- name: Extract installed gh release version
-  shell: "dpkg-query -W gh | awk '{print $2}'"
+- name: Extract version if it already installed
+  shell: |
+    set -o pipefail
+    "dpkg-query -W gh | awk '{print $2}'"
+  args:
+    executable: /bin/bash
   register: gh_installed_version
-  ignore_errors: False
-  changed_when: False
+  ignore_errors: false
+  changed_when: false
   when: gh_check_deb.rc == 0
 
-- name: Show gh binary stat
+- name: Show the binary stat
   debug:
     msg: "gh_installed_version : {{ gh_installed_version }}"
-  changed_when: False
+  changed_when: false
   when: gh_check_deb.rc == 1 or gh_installed_version.stdout != gh_version.stdout
 
 - name: Set the filename
@@ -39,15 +48,15 @@
     gh_deb_name: "gh_{{ gh_version.stdout }}_linux_amd64.deb"
   when: gh_check_deb.rc == 1 or gh_installed_version.stdout != gh_version.stdout
 
-- name: Download gh
+- name: Download the package
   get_url:
     url: "{{ gh_download_url }}{{ gh_version.stdout }}/{{ gh_deb_name }}"
     dest: "/tmp/{{ gh_deb_name }}"
-  ignore_errors: False
+  ignore_errors: false
   when: gh_check_deb.rc == 1 or gh_installed_version.stdout != gh_version.stdout
 
-- name: Install gh
-  become: True
+- name: Install the package
+  become: true
   apt:
     deb: "/tmp/{{ gh_deb_name }}"
   when: gh_check_deb.rc == 1 or gh_installed_version.stdout != gh_version.stdout
@@ -56,5 +65,5 @@
   file:
     path: "/tmp/{{ gh_deb_name }}"
     state: absent
-  ignore_errors: True
+  ignore_errors: true
   when: gh_check_deb.rc == 1 or gh_installed_version.stdout != gh_version.stdout

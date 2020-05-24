@@ -1,26 +1,26 @@
 ---
-- name: Check if docker is installed
+- name: Check if it is already installed
   command: dpkg-query -W git
   register: git_check_deb
   failed_when: git_check_deb.rc > 1
   changed_when: git_check_deb.rc == 1
 
 - name: Install apt-transport-https
-  become: True
+  become: true
   apt:
     name: apt-transport-https
     state: present
   when: git_check_deb.rc == 1
 
-- name: Add Git repository source
-  become: True
+- name: Add repository source
+  become: true
   apt_repository:
     repo: 'ppa:git-core/ppa'
     state: present
-    update_cache: True
+    update_cache: true
 
-- name: Install Git and related packages
-  become: True
+- name: Install packages
+  become: true
   apt:
     state: latest
     pkg: "git, git-flow, hub, git-lfs"
