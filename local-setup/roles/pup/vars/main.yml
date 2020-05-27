@@ -1,0 +1,6 @@
+---
+pup_release_base: "https://github.com/ericchiang/pup/releases"
+pup_release_download: "{{ pup_release_base }}/download"
+pup_release_url: "{{ pup_release_base }}/latest"
+pup_strip_url: "{{ pup_release_base }}/tag/v"
+pup_install_path: /usr/local/bin/pup

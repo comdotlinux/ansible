@@ -1,4 +1,4 @@
-# ansible ![yaml-lint](https://github.com/comdotlinux/ansible/workflows/yaml-lint/badge.svg) ![ansible-lint](https://github.com/comdotlinux/ansible/workflows/ansible-lint/badge.svg) 
+# ansible ![yaml-lint](https://github.com/comdotlinux/ansible/workflows/yaml-lint/badge.svg) ![ansible-lint](https://github.com/comdotlinux/ansible/workflows/ansible-lint/badge.svg)
 
 All my ansible playbooks are stored here. However not all are maintained.
 
@@ -20,8 +20,9 @@ All my ansible playbooks are stored here. However not all are maintained.
       1. curl
       1. unzip
    1. Sets up the [bat](https://github.com/sharkdp/bat) `batcat` command as replacement of cat (`cat` is renamed to `oldcat`)
-   1. [Visual Studio Code](./local-setup/roles/code/tasks/main.yml)
-   1. Docker
+   1. Sets up [put](https://github.com/ericchiang/pup/)
+   1. [Visual Studio Code](https://code.visualstudio.com/)
+   1. [Docker](https://docs.docker.com/get-docker/)
    1. Sets Up [Jetbrains Font](https://www.jetbrains.com/lp/mono/) and [Powerline](https://fedoramagazine.org/add-power-terminal-powerline) fonts
    1. Installs / Upgrades GIT using [PPA](https://git-scm.com/download/linux)
    1. Installs [github-cli](https://github.com/cli/cli)
@@ -31,10 +32,10 @@ All my ansible playbooks are stored here. However not all are maintained.
    1. [Ngrok](https://ngrok.com/download)
    1. [Smplayer](https://www.smplayer.info/en/downloads)
    1. [peek](https://github.com/phw/peek#ubuntu)
+   1. [VirtualBox](https://www.virtualbox.org/wiki/Downloads) including the extpack
 
 1. In Progress
    1. yubico
-   1. :)
 
 ### Things planned
 

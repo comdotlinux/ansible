@@ -9,6 +9,7 @@
 
   roles:
     - common
+    - pup
     - fonts
     - code
     - docker
@@ -20,6 +21,7 @@
     - ngrok
     - smplayer
     - peek
+    - virtualbox
   tasks:
     - name: Remove useless packages from the cache
       become: true

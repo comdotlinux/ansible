@@ -1,0 +1,94 @@
+---
+- name: Check if it is already installed
+  command: dpkg-query -W virtualbox-{{ virtualbox_version }}
+  register: virtualbox_check_deb
+  failed_when: virtualbox_check_deb.rc > 1
+  changed_when: virtualbox_check_deb.rc == 1
+
+- name: Install apt-transport-https
+  become: true
+  apt:
+    name: apt-transport-https
+    state: present
+  when: virtualbox_check_deb.rc == 1
+
+- name: Add an Apt signing key, uses whichever key is at the URL
+  become: true
+  apt_key:
+    url: https://www.virtualbox.org/download/oracle_vbox_2016.asc
+    state: present
+  when: virtualbox_check_deb.rc == 1
+
+- name: Add the repository source
+  become: true
+  apt_repository:
+    repo: "deb [arch=amd64] https://download.virtualbox.org/virtualbox/debian  {{ ubuntu_release_name }} contrib"
+    state: present
+    update_cache: true
+    filename: virtualbox
+  when: virtualbox_check_deb.rc == 1
+
+- name: Update apt cache
+  become: true
+  apt:
+    update_cache: true
+  ignore_errors: true
+  when: virtualbox_check_deb.rc == 1
+
+- name: Install packages
+  become: true
+  apt:
+    pkg: virtualbox-{{ virtualbox_version }}
+    state: latest
+
+- name: get the installed extpack version
+  shell: "VBoxManage list extpacks | grep Version | awk '{print $2}'"
+  register: extpack_installed_version
+  ignore_errors: true
+  changed_when: false
+
+- name: get the webpage
+  get_url:
+    url: https://www.virtualbox.org/wiki/Downloads
+    dest: /tmp/virtualbox-download.html
+  changed_when: false
+
+- name: Grab the Download URL
+  shell: cat /tmp/virtualbox-download.html | pup '.ext-link' | grep -o "https.*vbox-extpack"
+  register: extpack_download_url
+  changed_when: false
+
+- name: Get the extpack Name
+  shell: "basename {{ extpack_download_url.stdout }}"
+  register: extpack_name
+  changed_when: false
+
+- name: get the new version
+  shell: echo {{ extpack_name.stdout }} | grep -o "6\.1\..*" | sed 's/.vbox-extpack//'
+  register: new_extpack_version
+  changed_when: false
+
+- name: Check Output
+  debug:
+    msg: "Output : {{ extpack_download_url }} and extpack_name : {{ extpack_name }}"
+
+- name: Download the extpack
+  get_url:
+    url: "{{ extpack_download_url.stdout }}"
+    dest: /tmp/{{ extpack_name.stdout }}
+  when: extpack_installed_version.stdout != new_extpack_version.stdout
+
+- name: install the extpack
+  become: true
+  shell: echo y | sudo VBoxManage extpack install --replace /tmp/{{ extpack_name.stdout }}
+  when: extpack_installed_version.stdout != new_extpack_version.stdout
+
+- name: Remove extpack download
+  file:
+    path: /tmp/{{ extpack_name.stdout }}
+    state: absent
+
+- name: Remove extpack download
+  file:
+    path: /tmp/virtualbox-download.html
+    state: absent

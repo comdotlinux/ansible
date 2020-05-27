@@ -1,0 +1,94 @@
+---
+- name: Check for new version
+  uri:
+    url: "{{ pup_release_url }}"
+    method: HEAD
+  register: pup_release_resp
+
+- name: echo release url
+  debug:
+    msg: "{{ pup_release_resp.url }}"
+  changed_when: false
+
+- name: "Check if it is already installed"
+  stat:
+    path: "{{ pup_install_path }}"
+  register: pup
+  changed_when: false
+
+- name: Show the binary stat
+  debug:
+    msg: "{{ pup.stat }}"
+  changed_when: false
+
+- name: Extract release version
+  shell: echo {{ pup_release_resp.url }} | sed 's_{{ pup_strip_url }}__'
+  register: pup_version
+  ignore_errors: false
+  changed_when: false
+
+- name: Check current installed version
+  shell: "{{ pup_install_path }} --version"
+  register: pup_installed_version
+  ignore_errors: true
+  changed_when: false
+
+- name: Show the versions variable
+  debug:
+    msg: "new version : {{ pup_version }}, installed version : {{ pup_installed_version }}"
+  changed_when: false
+
+- name: Show the URL
+  debug:
+    msg: "URL : {{ pup_release_download }}/v{{ pup_version.stdout }}/pup_v{{ pup_version.stdout }}_linux_amd64.zip"
+  changed_when: false
+
+- name: Download new version
+  get_url:
+    url: "{{ pup_release_download }}/v{{ pup_version.stdout }}/pup_v{{ pup_version.stdout }}_linux_amd64.zip"
+    dest: "/tmp/{{ pup_version.stdout }}.zip"
+  ignore_errors: false
+  when: not pup.stat.exists or pup_installed_version.stdout != pup_version.stdout
+  changed_when: not pup.stat.exists or pup_installed_version.stdout != pup_version.stdout
+
+- name: "Unarchive the tarball."
+  unarchive:
+    src: "/tmp/{{ pup_version.stdout }}.zip"
+    dest: "/tmp/"
+    copy: false
+  when: not pup.stat.exists or pup_installed_version.stdout != pup_version.stdout
+
+- name: Upgrade if there is a new version or install if its the first time.
+  become: true
+  copy:
+    src: /tmp/pup
+    dest: "{{ pup_install_path }}"
+  ignore_errors: false
+  when: not pup.stat.exists or pup_installed_version.stdout != pup_version.stdout
+
+- name: Get installed stats
+  stat:
+    path: "{{ pup_install_path }}"
+  register: pup_bin_path
+  ignore_errors: false
+
+- name: Set the executable permission if it is not executable
+  become: true
+  file:
+    path: "{{ pup_install_path }}"
+    mode: '0755'
+  when: pup_bin_path.stat.mode != '0755'
+
+- name: "Remove file /tmp/{{ pup_version.stdout }}.zip"
+  file:
+    path: "/tmp/{{ pup_version.stdout }}.zip"
+    state: absent
+  ignore_errors: true
+  changed_when: not pup.stat.exists or pup_installed_version.stdout != pup_version.stdout
+
+- name: "Remove pup"
+  file:
+    path: "/tmp/pup"
+    state: absent
+  ignore_errors: true
+  changed_when: not pup.stat.exists or pup_installed_version.stdout != pup_version.stdout
