@@ -1,0 +1,6 @@
+---
+minikube_url_base: https://github.com/kubernetes/minikube/releases
+mk_release_url: "{{ minikube_url_base }}/latest"
+mk_strip_url: "{{ minikube_url_base }}/tag/v"
+mk_download_url: "{{ minikube_url_base }}/download/v"
+mk_deb_name: minikube_latest_amd64.deb

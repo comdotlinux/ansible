@@ -1,0 +1,44 @@
+---
+- name: Check if it is already installed
+  command: dpkg-query -W kubectl
+  register: kubectl_check_deb
+  failed_when: kubectl_check_deb.rc > 1
+  changed_when: kubectl_check_deb.rc == 1
+
+- name: Install apt-transport-https gnupg2
+  become: true
+  apt:
+    pkg: "apt-transport-https, gnupg2"
+    state: present
+  when: kubectl_check_deb.rc == 1
+
+- name: Add the repository key
+  become: true
+  apt_key:
+    url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
+    state: present
+  when: kubectl_check_deb.rc == 1
+
+- name: Add the repository source
+  become: true
+  apt_repository:
+    repo: "deb https://apt.kubernetes.io/ kubernetes-xenial main"
+    state: present
+    update_cache: true
+    filename: kubectl
+  when: kubectl_check_deb.rc == 1
+
+- name: Update apt cache
+  become: true
+  apt:
+    update_cache: true
+    cache_valid_time: "3600"
+  ignore_errors: true
+  when: kubectl_check_deb.rc == 1
+
+- name: Install packages
+  become: true
+  apt:
+    pkg: kubectl
+    state: present
+  when: kubectl_check_deb.rc == 1

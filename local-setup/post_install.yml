@@ -18,10 +18,12 @@
     - google-chrome
     - hub
     - keepassxc
-    - ngrok
+    # - ngrok # its failing for some reason
     - smplayer
     - peek
     - virtualbox
+    - kubectl
+    - minikube
   tasks:
     - name: Remove useless packages from the cache
       become: true

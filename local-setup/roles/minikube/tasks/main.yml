@@ -1,0 +1,56 @@
+---
+- name: Check for latest version
+  uri:
+    url: "{{ mk_release_url }}"
+    method: HEAD
+  register: mk_release_resp
+
+- name: echo release url
+  debug:
+    msg: "{{ mk_release_resp.url }}"
+  changed_when: false
+
+- name: Extract release version
+  shell: echo {{ mk_release_resp.url }} | sed 's_{{ mk_strip_url }}__'
+  register: mk_version
+  ignore_errors: false
+  changed_when: false
+
+- name: Check if it is already installed
+  command: dpkg-query -W minikube
+  register: mk_check_deb
+  failed_when: mk_check_deb.rc > 1
+  changed_when: mk_check_deb.rc == 1
+
+- name: Extract version if it already installed
+  shell: dpkg-query -W minikube | awk '{print $2}'
+  register: mk_installed_version
+  ignore_errors: false
+  changed_when: false
+  when: mk_check_deb.rc == 0
+
+- name: Show the binary stat
+  debug:
+    msg: "mk_installed_version : {{ mk_installed_version }}"
+  changed_when: false
+  when: mk_check_deb.rc == 1 or mk_installed_version.stdout != mk_version.stdout
+
+- name: Download the package
+  get_url:
+    url: "{{ mk_download_url }}{{ mk_version.stdout }}/{{ mk_deb_name }}"
+    dest: "/tmp/{{ mk_deb_name }}"
+  ignore_errors: false
+  when: mk_check_deb.rc == 1 or mk_installed_version.stdout != mk_version.stdout
+
+- name: Install the package
+  become: true
+  apt:
+    deb: "/tmp/{{ mk_deb_name }}"
+  when: mk_check_deb.rc == 1 or mk_installed_version.stdout != mk_version.stdout
+
+- name: "Remove file /tmp/{{ mk_deb_name }}"
+  file:
+    path: "/tmp/{{ mk_deb_name }}"
+    state: absent
+  ignore_errors: true
+  when: mk_check_deb.rc == 1 or mk_installed_version.stdout != mk_version.stdout
