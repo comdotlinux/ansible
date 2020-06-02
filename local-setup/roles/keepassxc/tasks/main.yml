@@ -1,21 +1,13 @@
 ---
-- name: Check if it is already installed
-  command: dpkg-query -W keepassxc
-  register: keepassxc_check_deb
-  failed_when: keepassxc_check_deb.rc > 1
-  changed_when: keepassxc_check_deb.rc == 1
-
 - name: Add the ppa
   become: true
   apt_repository:
     repo: 'ppa:phoerious/keepassxc'
     state: present
     update_cache: true
-  when: keepassxc_check_deb.rc == 1
 
 - name: Install the package
   become: true
   apt:
     state: latest
     pkg: keepassxc
-  when: keepassxc_check_deb.rc == 1

@@ -1,0 +1,3 @@
+---
+insync_apt_file_name: insync
+insync_apt_file_path: "/etc/apt/sources.list.d/{{ insync_apt_file_name }}.list"

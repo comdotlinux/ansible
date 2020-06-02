@@ -51,6 +51,7 @@
   get_url:
     url: https://www.virtualbox.org/wiki/Downloads
     dest: /tmp/virtualbox-download.html
+    timeout: 60
   changed_when: false
 
 - name: Grab the Download URL
@@ -87,8 +88,12 @@
   file:
     path: /tmp/{{ extpack_name.stdout }}
     state: absent
+  changed_when: false
+  ignore_errors: true
 
 - name: Remove extpack download
   file:
     path: /tmp/virtualbox-download.html
     state: absent
+  changed_when: false
+  ignore_errors: true

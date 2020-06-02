@@ -19,6 +19,7 @@
   get_url:
     url: https://ngrok.com/download
     dest: /tmp/ngrok-download.html
+    timeout: 60
   changed_when: not ngrok_bin.stat.exists
 
 - name: Grab the Download URL
@@ -34,6 +35,7 @@
   get_url:
     url: "{{ ngrok_download_url.stdout }}"
     dest: /tmp/ngrok.zip
+    timeout: 180
   changed_when: not ngrok_bin.stat.exists
 
 - name: "Unarchive zip"

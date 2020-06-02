@@ -1,0 +1,71 @@
+---
+- name: Check if it is already installed
+  stat:
+    path: "{{ oc_binary_install_path }}"
+  register: oc_bin
+  ignore_errors: true
+
+- name: Check Output
+  debug:
+    msg: "oc_bin : {{ oc_bin }}"
+
+- name: Get the installed version
+  shell: "{{ oc_binary_install_path }} --version 2> /dev/null | awk '{print $3}'"
+  register: ocVersion
+  changed_when: ocVersion.stdout | length > 0
+  when: oc_bin.stat.exists
+
+- name: Download the ZIP
+  get_url:
+    url: "{{ oc_download_url }}"
+    dest: /tmp/oc.tar.gz
+    timeout: 180
+  changed_when: not oc_bin.stat.exists
+
+- name: "Unarchive zip"
+  unarchive:
+    src: /tmp/oc.tar.gz
+    dest: "/tmp/"
+    copy: false
+  changed_when: not oc_bin.stat.exists
+
+- name: Get The version from zip
+  shell: /tmp/oc --version 2> /dev/null | awk '{print $3}'
+  register: ocNewVersion
+  ignore_errors: true
+  changed_when: not oc_bin.stat.exists
+
+- name: Upgrade if there is a new version
+  become: true
+  copy:
+    src: "/tmp/oc"
+    dest: "{{ oc_binary_install_path }}"
+  ignore_errors: false
+  when: not oc_bin.stat.exists or ocVersion.stdout != ocNewVersion.stdout
+
+- name: Get installed stats
+  stat:
+    path: "{{ oc_binary_install_path }}"
+  register: oc_bin_path
+  ignore_errors: false
+
+- name: Set the executable permission if it is not executable
+  become: true
+  file:
+    path: "{{ oc_binary_install_path }}"
+    mode: '0755'
+  when: oc_bin_path.stat.mode != '0755'
+
+- name: Cleanup temp
+  file:
+    path: /tmp/oc.tar.gz
+    state: absent
+  ignore_errors: true
+  changed_when: false
+
+- name: Remove temp files
+  file:
+    path: /tmp/oc
+    state: absent
+  ignore_errors: true
+  changed_when: false

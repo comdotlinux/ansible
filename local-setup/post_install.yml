@@ -18,12 +18,14 @@
     - google-chrome
     - hub
     - keepassxc
-    # - ngrok # its failing for some reason
+    - ngrok
     - smplayer
     - peek
     - virtualbox
     - kubectl
     - minikube
+    - insync
+    - oc
   tasks:
     - name: Remove useless packages from the cache
       become: true

@@ -1,0 +1,42 @@
+---
+- name: Check if it is already installed
+  command: dpkg-query -W insync
+  register: insync_check_deb
+  failed_when: insync_check_deb.rc > 1
+  changed_when: insync_check_deb.rc == 1
+
+- name: Add the key
+  become: true
+  apt_key:
+    keyserver: keyserver.ubuntu.com
+    id: AEEB94E9C5A3B54ECFA4A66AA684470CACCAF35C
+    state: present
+
+- name: Does the apt file exist?
+  stat:
+    path: "{{ insync_apt_file_path }}"
+  register: insync_apt_file
+  ignore_errors: true
+  changed_when: false
+
+- name: Add repo if required
+  become: true
+  apt_repository:
+    repo: "deb http://apt.insync.io/ubuntu {{ ubuntu_release_name }} non-free contrib"
+    state: present
+    update_cache: true
+    filename: "{{ insync_apt_file_name }}"
+  when: insync_check_deb.rc == 1 or not insync_apt_file.stat.exists
+
+- name: Run "apt-get update"
+  become: true
+  apt:
+    update_cache: true
+    force: true
+  ignore_errors: true
+
+- name: Install the package
+  become: true
+  apt:
+    state: latest
+    pkg: insync

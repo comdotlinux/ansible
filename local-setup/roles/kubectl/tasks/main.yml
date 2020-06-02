@@ -40,5 +40,4 @@
   become: true
   apt:
     pkg: kubectl
-    state: present
-  when: kubectl_check_deb.rc == 1
+    state: latest
