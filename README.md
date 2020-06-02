@@ -33,6 +33,8 @@ All my ansible playbooks are stored here. However not all are maintained.
    1. [Smplayer](https://www.smplayer.info/en/downloads)
    1. [peek](https://github.com/phw/peek#ubuntu)
    1. [VirtualBox](https://www.virtualbox.org/wiki/Downloads) including the extpack
+   1. [insync](https://www.insynchq.com/)
+   1. [Openshift OC](https://console-openshift-console.apps.ocp-eu2.prod.nextcle.com/command-line-tools)
 
 1. In Progress
    1. yubico
