@@ -2,6 +2,15 @@
 
 All my ansible playbooks are stored here. However not all are maintained.
 
+* Running the shell script [lintAndRun.sh](./lintAndRun.sh) does a few things to ease checks before running
+   1. Check and enable the virtual environment if it does not exist
+   1. Setup if virtual environment does not exist
+   1. Update pip
+   1. install dependencies if requirements.txt is changed (uses sha512sum : see [requirements.sha512sum](./requirements.sha512sum))
+   1. runs yamllint on ALL files
+   1. runs ansible-lint on [post-install.yml](./local-setup/post-install.yml) playbook
+   1. finall run the playbook
+
 ## My Local setup (only tested on Linux Mint / Ubuntu / Pop OS)
 
 1. This is stored in [local-setup](./local-setup) directory
