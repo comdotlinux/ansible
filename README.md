@@ -20,9 +20,10 @@ All my ansible playbooks are stored here. However not all are maintained.
       1. curl
       1. unzip
    1. Sets up the [bat](https://github.com/sharkdp/bat) `batcat` command as replacement of cat (`cat` is renamed to `oldcat`)
-   1. Sets up [put](https://github.com/ericchiang/pup/)
+   1. Sets up [pup](https://github.com/ericchiang/pup/)
    1. [Visual Studio Code](https://code.visualstudio.com/)
    1. [Docker](https://docs.docker.com/get-docker/)
+   1. [docker-compose](https://github.com/docker/compose)
    1. Sets Up [Jetbrains Font](https://www.jetbrains.com/lp/mono/) and [Powerline](https://fedoramagazine.org/add-power-terminal-powerline) fonts
    1. Installs / Upgrades GIT using [PPA](https://git-scm.com/download/linux)
    1. Installs [github-cli](https://github.com/cli/cli)

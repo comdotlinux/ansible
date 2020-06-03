@@ -58,9 +58,31 @@ fi
 
 colorEcho  ${GREEN} "-- Running yamllint --"
 yamllint ${script_dir}
+if [[ $? -ne 0 ]] ; then
+	colorStart ${RED}
+	read -n 1 -p "Yaml lint failed, still want to continue? [Y/y/anyCharacterToExit] : " YL_ANSWER
+	echo ""
+	if [[ "x${YL_ANSWER,,}" = "xy" ]] ; then
+		echo "Continuing anyway ...."
+	else
+		exit 10
+	fi
+	colorEnd
+fi
 
 colorEcho  ${GREEN} "-- Running ansible-lint --"
 ansible-lint ${script_dir}/local-setup/post_install.yml
+if [[ $? -ne 0 ]] ; then
+	colorStart ${RED}
+	read -n 1 -p "ansible lint failed, still want to continue? [Y/y/anyCharacterToExit] : " AL_ANSWER
+	echo ""
+	if [[ "x${AL_ANSWER,,}" = "xy" ]] ; then
+		echo "Continuing anyway ...."
+	else
+		exit 10
+	fi
+	colorEnd
+fi
 
 colorEcho  ${GREEN} "-- deactivate virtual environment --"
 deactivate

@@ -1,0 +1,75 @@
+---
+- name: Check for latest version
+  uri:
+    url: "{{ dc_release_url }}"
+    method: HEAD
+  register: dc_release_resp
+
+- name: echo release url
+  debug:
+    msg: "{{ dc_release_resp.url }}"
+  changed_when: false
+
+- name: Extract release version
+  shell: echo {{ dc_release_resp.url }} | sed 's_{{ dc_strip_url }}__'
+  register: dc_version
+  ignore_errors: false
+  changed_when: false
+
+- name: echo release version
+  debug:
+    msg: "{{ dc_version }}"
+  changed_when: false
+
+- name: Check if it is already installed
+  stat:
+    path: "{{ dc_binary_install_path }}"
+  register: dc_bin
+  ignore_errors: true
+
+- name: Check current installed version
+  shell: "{{ dc_binary_install_path }} version | awk '/docker-compose/{print $3}' | tr -dt ','"
+  register: dc_installed_version
+  changed_when: false
+  when: dc_bin.stat.exists
+
+- name: Show the binary stat
+  debug:
+    msg: "dc_installed_version : {{ dc_installed_version }}"
+  changed_when: false
+  when: not dc_bin.stat.exists or dc_installed_version.stdout != dc_version.stdout
+
+- name: Download the package
+  get_url:
+    url: "{{ dc_download_url }}{{ dc_version.stdout }}/{{ dc_executable_name }}"
+    dest: "/tmp/{{ dc_executable_name }}"
+  ignore_errors: false
+  when: not dc_bin.stat.exists or dc_installed_version.stdout != dc_version.stdout
+
+- name: Install Or Upgrade if there is a new version
+  become: true
+  copy:
+    src: "/tmp/{{ dc_executable_name }}"
+    dest: "{{ dc_binary_install_path }}"
+  ignore_errors: false
+  when: not dc_bin.stat.exists or dc_installed_version.stdout != dc_version.stdout
+
+- name: Get installed stats
+  stat:
+    path: "{{ dc_binary_install_path }}"
+  register: dc_bin_path
+  ignore_errors: false
+
+- name: Set the executable permission if it is not executable
+  become: true
+  file:
+    path: "{{ dc_binary_install_path }}"
+    mode: '0755'
+  when: dc_bin_path.stat.mode != '0755'
+
+- name: "Remove file /tmp/{{ dc_executable_name }}"
+  file:
+    path: "/tmp/{{ dc_executable_name }}"
+    state: absent
+  ignore_errors: true
+  when: not dc_bin.stat.exists or dc_installed_version.stdout != dc_version.stdout

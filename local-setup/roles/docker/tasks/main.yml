@@ -50,7 +50,7 @@
 - name: Install packages
   become: true
   apt:
-    pkg: docker-ce
+    pkg: "docker-ce, docker-compose"
     state: present
   when: docker_check_deb.rc == 1
 

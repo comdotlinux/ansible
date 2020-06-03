@@ -1,0 +1,8 @@
+---
+# https://github.com/docker/compose/releases/download/1.25.5/docker-compose-Linux-x86_64
+docker_compose_url_base: https://github.com/docker/compose/releases
+dc_release_url: "{{ docker_compose_url_base }}/latest"
+dc_strip_url: "{{ docker_compose_url_base }}/tag/"
+dc_download_url: "{{ docker_compose_url_base }}/download"
+dc_executable_name: "docker-compose-Linux-x86_64"
+dc_binary_install_path: /usr/local/bin/docker-compose

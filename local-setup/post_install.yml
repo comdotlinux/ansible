@@ -13,6 +13,7 @@
     - fonts
     - code
     - docker
+    - docker-compose
     - git
     - github-cli
     - google-chrome
