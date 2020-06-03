@@ -25,7 +25,8 @@
     - kubectl
     - minikube
     - insync
-    - oc
+    # - oc # Problems as now requires login.
+    - yubico
   tasks:
     - name: Remove useless packages from the cache
       become: true

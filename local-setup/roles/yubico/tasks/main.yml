@@ -1,17 +1,22 @@
 ---
-- name: Add Yubico Key
-  apt_key:
-    keyserver: keyserver.ubuntu.com
-    id: 32CBA1A9
-    state: present
+# - name: Add Yubico Key
+#   apt_key:
+#     keyserver: keyserver.ubuntu.com
+#     id: 32CBA1A9
+#     state: present
 - name: Add Yubico ppa
   become: true
   apt_repository:
     repo: 'ppa:yubico/stable'
     state: present
     update_cache: true
-- name: Install YubiCo package
+- name: Update apt cache
+  become: true
+  apt:
+    update_cache: true
+    force: true
+- name: Install Yubico package
   become: true
   apt:
     state: latest
-    pkg: yubikey-personalization-gui
+    pkg: "yubikey-manager, yubikey-personalization-gui"

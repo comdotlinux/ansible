@@ -33,13 +33,13 @@ All my ansible playbooks are stored here. However not all are maintained.
    1. [Smplayer](https://www.smplayer.info/en/downloads)
    1. [peek](https://github.com/phw/peek#ubuntu)
    1. [VirtualBox](https://www.virtualbox.org/wiki/Downloads) including the extpack
+   1. [kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl/#install-using-native-package-management)
+   1. [minikube](https://github.com/kubernetes/minikube)
    1. [insync](https://www.insynchq.com/)
-   1. [Openshift OC](https://console-openshift-console.apps.ocp-eu2.prod.nextcle.com/command-line-tools)
+   1. [yubico](https://support.yubico.com/support/solutions/articles/15000010964-enabling-the-yubico-ppa-on-ubuntu)
 
-1. In Progress
-   1. yubico
-
-### Things planned
+### Things planned (someday!)
 
 1. Jetbrains Toolbox
-1. K8s / Openshift
+1. [Openshift OC](https://console-openshift-console.apps.ocp-eu2.prod.nextcle.com/command-line-tools)
+   * Problem seems to be that now this requires login.
