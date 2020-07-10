@@ -1,0 +1,40 @@
+---
+- name: Check if it is already installed
+  command: dpkg-query -W dart
+  register: dart_check_deb
+  failed_when: dart_check_deb.rc > 1
+  changed_when: dart_check_deb.rc == 1
+
+- name: Does the apt file exist?
+  stat:
+    path: "{{ dart_apt_file }}"
+  register: dart_apt_file
+  ignore_errors: true
+  changed_when: false
+
+- name: Add the signing key to apt-key
+  become: true
+  apt_key:
+    url: https://dl-ssl.google.com/linux/linux_signing_key.pub
+    state: present
+
+- name: Add repo if required
+  become: true
+  apt_repository:
+    repo: "deb [arch=amd64] https://storage.googleapis.com/download.dartlang.org/linux/debian stable main"
+    state: present
+    update_cache: true
+    filename: "{{ dart_list_file }}"
+  when: dart_check_deb.rc == 1 or not dart_apt_file.stat.exists
+
+- name: Update apt cache
+  become: true
+  apt:
+    update_cache: true
+  when: dart_check_deb.rc == 1 and not dart_apt_file.stat.exists
+
+- name: Install package
+  become: true
+  apt:
+    pkg: dart
+    state: latest

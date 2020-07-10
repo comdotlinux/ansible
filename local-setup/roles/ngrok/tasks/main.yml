@@ -19,11 +19,12 @@
   get_url:
     url: https://ngrok.com/download
     dest: /tmp/ngrok-download.html
-    timeout: 60
+    timeout: 180
   changed_when: not ngrok_bin.stat.exists
 
 - name: Grab the Download URL
-  shell: grep 'id="dl-linux-amd64"' /tmp/ngrok-download.html | grep -o "href=\".*.zip" | cut -d\" -f 2
+  shell: |
+    pup --color --file /tmp/ngrok-download.html '#dl-linux-amd64 attr{href}'
   register: ngrok_download_url
   changed_when: not ngrok_bin.stat.exists
 

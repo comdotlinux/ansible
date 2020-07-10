@@ -1,0 +1,41 @@
+---
+- name: Check if it is already installed
+  command: dpkg-query -W spideroakone
+  register: spideroakone_check_deb
+  failed_when: spideroakone_check_deb.rc > 1
+  changed_when: spideroakone_check_deb.rc == 1
+
+- name: Get installed version
+  shell: |
+    echo "{{ spideroakone_check_deb.stdout }}" | awk -NF: '{print $2}'
+  register: spideroak_installed_version
+  ignore_errors: false
+  changed_when: false
+  when: spideroakone_check_deb.rc == 0
+
+- name: Check for latest version
+  uri:
+    url: "{{ spideroak_release_url }}"
+    method: HEAD
+  register: spideroak_release_resp
+  changed_when: false
+
+- name: Extract release version
+  shell: |
+    echo "{{ spideroak_release_resp.content_disposition }}" | awk -NF= '{print $2}' | awk -NF_ '{print $2}'
+  register: spideroak_version
+  ignore_errors: false
+  changed_when: spideroakone_check_deb.rc == 0 and spideroak_installed_version.stdout != spideroak_version.stdout
+
+- name: echo versions
+  debug:
+    msg: "spideroak_installed_version: {{ spideroak_installed_version }} | spideroak_version: {{ spideroak_version }}"
+  ignore_errors: true
+  changed_when: false
+
+- name: Install Spider Oak
+  become: true
+  apt:
+    deb: https://spideroak.com/release/spideroak/deb_x64
+    state: present
+  when: spideroakone_check_deb.rc == 1 or spideroak_installed_version.stdout != spideroak_version.stdout

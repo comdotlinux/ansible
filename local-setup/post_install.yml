@@ -8,26 +8,52 @@
     - vault_file: "{{ vault_download | basename }}"
 
   roles:
-    - common
-    - pup
-    - fonts
-    - code
-    - docker
-    - docker-compose
-    - git
-    - github-cli
-    - google-chrome
-    - hub
-    - keepassxc
-    - ngrok
-    - smplayer
-    - peek
-    - virtualbox
-    - kubectl
-    - minikube
-    - insync
-    # - oc # Problems as now requires login.
-    - yubico
+    - role: common
+      tags: [common, base]
+    - role: spideroak
+      tags: [spideroak]
+    - role: pup
+      tags: [pup]
+    - role: fonts
+      tags: [fonts, ide]
+    - role: code
+      tags: [code, ide]
+    - role: docker
+      tags: [docker]
+    - role: docker-compose
+      tags: [docker-compose, docker]
+    - role: git
+      tags: [git]
+    - role: github-cli
+      tags: [git, cli, github]
+    - role: google-chrome
+      tags: [google-chrome]
+    - role: hub
+      tags: [git, hub, cli, github]
+    - role: keepassxc
+      tags: [keepassxc]
+    - role: ngrok
+      tags: [ngrok]
+    - role: smplayer
+      tags: [smplayer]
+    - role: peek
+      tags: [peek]
+    - role: virtualbox
+      tags: [virtualbox]
+    - role: kubectl
+      tags: [kubectl, k8s]
+    - role: minikube
+      tags: [minikube, k8s]
+    - role: insync
+      tags: [insync]
+    # - role: oc # Problems as now requires login.
+    #  tags: [oc]
+    - role: yubico
+      tags: [yubico]
+    - role: back-in-time
+      tags: [back-in-time]
+    - role: dart-sdk
+      tags: [dart]
   tasks:
     - name: Remove useless packages from the cache
       become: true

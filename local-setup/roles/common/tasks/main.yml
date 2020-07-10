@@ -10,7 +10,7 @@
   become: true
   apt:
     state: latest
-    pkg: "stow, neovim, htop, conky-all, byobu, evolution-ews, guake, autokey-gtk, slack-desktop, powerline, curl, unzip, bat, python3-venv, barrier"
+    pkg: "stow, neovim, htop, conky-all, byobu, evolution-ews, guake, autokey-gtk, slack-desktop, powerline, curl, unzip, bat, python3-venv, barrier, keychain"
 
 - name: Check batcat is present before moving cat
   stat:

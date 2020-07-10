@@ -1,0 +1,17 @@
+---
+- name: Add ppa
+  become: true
+  apt_repository:
+    repo: 'ppa:bit-team/stable'
+    state: present
+
+- name: Update apt cache
+  become: true
+  apt:
+    update_cache: true
+    force: true
+- name: Install package
+  become: true
+  apt:
+    state: latest
+    pkg: "backintime-qt4"

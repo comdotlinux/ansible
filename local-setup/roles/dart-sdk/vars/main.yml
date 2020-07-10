@@ -1,0 +1,3 @@
+---
+dart_list_file: dart_stable
+dart_apt_file: "/etc/apt/sources.list.d/{{ dart_list_file }}.list"
